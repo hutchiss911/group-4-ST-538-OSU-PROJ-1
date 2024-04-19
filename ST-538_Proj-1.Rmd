@@ -3,6 +3,31 @@ title: "ST 531 Project 1 R Notebook"
 output: html_notebook
 ---
 
+```{r}
+## For your notes, an if statement for checking if a package is installed :)
+#if(!require(somepackage)){
+#    install.packages("somepackage")
+#    library(somepackage)
+#}
+
+if (!require(tidycensus)) {
+  install.packages("tidycensus")
+}
+if (!require(tidyverse)) {
+  install.packages("tidyverse")
+}
+```
+
+
+
+```{r}
+library(tidycensus)
+library(tidyverse)
+
+census_api_key("2547c95ce33b1ed0eec3aafd0fd8526a5bb9a22e")
+```
+
+
 #Obtain the Data
 
 ```{r}
