@@ -140,6 +140,7 @@ puma_data <- puma_data %>%
 )
 ```
 
+With the data mostly cleaned up, we can now explore the data.
 
 ## Explore the data
 
