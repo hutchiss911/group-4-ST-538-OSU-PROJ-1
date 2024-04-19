@@ -67,7 +67,6 @@ Since we've already pulled the data, now we need to just clean up the data first
 Let's begin by assigning the column names more descriptive names:
 
 ```{r}
-##Rename column names with a mutate.
 puma_data <- puma_data %>% rename(Age = AGEP,
                                   EducationLevel = SCHL,
                                   Income = PINCP,
