@@ -1,0 +1,22 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+#Obtain the Data
+
+```{r}
+puma_data <- get_pums(variables = c("AGEP","SCHL","PINCP")
+                      ,state = "OR"
+                      ,year = 2022)
+```
+
+#Scrub the data
+
+#Explore the data
+
+[Reference on Variables for now](https://usa.ipums.org/usa/resources/codebooks/DataDict1822.pdf)
+
+#Model the data
+
+#Interpret the data
