@@ -1,9 +1,16 @@
 ---
-title: "ST 531 Project 1 R Notebook"
-output: html_notebook
+title: "ST 538 Project 1 R Notebook"
+author:
+  - Di Chen
+  - Mai Castellano
+  - Tyler Kussee
+  - Spencer Hutchison
+output:
+  pdf_document: default
+  html_notebook: default
 ---
 
-```{r}
+```{r echo=FALSE, message=FALSE}
 ## For your notes, an if statement for checking if a package is installed :)
 #if(!require(somepackage)){
 #    install.packages("somepackage")
@@ -19,8 +26,7 @@ if (!require(tidyverse)) {
 ```
 
 
-
-```{r}
+```{r echo=FALSE, message=FALSE}
 library(tidycensus)
 library(tidyverse)
 
@@ -28,20 +34,21 @@ census_api_key("2547c95ce33b1ed0eec3aafd0fd8526a5bb9a22e")
 ```
 
 
-#Obtain the Data
 
-```{r}
+## Obtain the Data
+
+```{r echo=FALSE, message=FALSE, results='hide'}
 puma_data <- get_pums(variables = c("AGEP","SCHL","PINCP")
                       ,state = "OR"
                       ,year = 2022)
 ```
 
-#Scrub the data
+## Scrub the data
 
-#Explore the data
+## Explore the data
 
 [Reference on Variables for now](https://usa.ipums.org/usa/resources/codebooks/DataDict1822.pdf)
 
-#Model the data
+## Model the data
 
-#Interpret the data
+## Interpret the data
