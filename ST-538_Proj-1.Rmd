@@ -82,6 +82,11 @@ puma_data <- puma_data %>% rename(Age = AGEP,
                                   PersonNumber = SPORDER)
 ```
 
+
+```{r}
+head(puma_data)
+```
+
 We can remove the the ST, Serial Number, and housing weight columns for now, 
 since we don't really need that information. I'll keep PersonNumber in for now,
 but we can remove it if not needed.
@@ -89,6 +94,7 @@ but we can remove it if not needed.
 ```{r, error=TRUE, collapse=TRUE, warning=FALSE}
 puma_data <- puma_data %>% 
   select(-ST, -SERIALNO, -WGTP, -PWGTP)
+head(puma_data)
 ```
 
 Next I'll rearrange the columns:
@@ -96,6 +102,7 @@ Next I'll rearrange the columns:
 ```{r, error=TRUE, collapse=TRUE, warning=FALSE}
 puma_data <- puma_data %>%
   select(EducationLevel, Income, Age, Sex, PersonNumber)
+head(puma_data)
 ```
 
 Now we should work on the variable codes to convert them to their actual descriptions to make the content easier to peruse. We'll start with Education Level and convert it from it's characters to the actual descriptions.
@@ -141,6 +148,7 @@ puma_data <- puma_data %>%
       TRUE ~ as.character(EducationLevel)
     )
 )
+head(puma_data)
 ```
 
 Now lets identify the genders in the dataset:
@@ -154,6 +162,7 @@ puma_data <- puma_data %>%
       TRUE ~ as.character(Sex)
     )
 )
+head(puma_data)
 ```
 
 With the data mostly cleaned up, we can now explore the data.
@@ -184,5 +193,28 @@ ggplot(puma_data %>% filter(Income > 0), aes(Income)) +
 [Reference on Variables for now](https://usa.ipums.org/usa/resources/codebooks/DataDict1822.pdf)
 
 ## Model the data
+```{r}
+head(puma_data)
+```
+
+```{r}
+# Does higher education mean higher income accounting for sex and age?
+model_1 <- lm(Income ~ EducationLevel + Sex + Age, data = puma_data)
+
+summary(model_1)
+```
+```{r}
+# Does higher education mean higher income accounting for sex and age?
+model_2 <- lm(Income ~ EducationLevel * Sex + Age, data = puma_data)
+
+summary(model_2)
+```
+```{r}
+# Does higher education mean higher income accounting for sex and age?
+model_3 <- lm(Income ~ EducationLevel * Sex * Age, data = puma_data)
+
+summary(model_3)
+```
+
 
 ## Interpret the data
