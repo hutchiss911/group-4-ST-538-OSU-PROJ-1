@@ -1,16 +1,18 @@
 ---
 title: "Data Wizards (Group 4) Project 1 R Notebook"
 author:
-  - Di Chen
-  - Mai Castellano
-  - Tyler Kussee
-  - Spencer Hutchison
+- Di Chen
+- Mai Castellano
+- Tyler Kussee
+- Spencer Hutchison
 output:
-  pdf_document: default
+  html_document:
+    df_print: paged
   html_notebook: default
+  pdf_document: default
 ---
 
-```{r echo=FALSE, message=FALSE}
+```{r echo=FALSE, message=FALSE, warning=FALSE}
 ## For your notes, an if statement for checking if a package is installed :)
 #if(!require(somepackage)){
 #    install.packages("somepackage")
@@ -23,10 +25,16 @@ if (!require(tidycensus)) {
 if (!require(tidyverse)) {
   install.packages("tidyverse")
 }
+if (!require(dplyr)) {
+  install.packages("dplyr")
+}
+if (!require(ggplot2)) {
+  install.packages("ggplot2")
+}
 ```
 
 
-```{r echo=FALSE, message=FALSE}
+```{r echo=FALSE, message=FALSE, warning=FALSE}
 library(tidycensus)
 library(tidyverse)
 
@@ -66,7 +74,7 @@ puma_data <- get_pums(variables = c("AGEP","SCHL","PINCP", "SEX")
 Since we've already pulled the data, now we need to just clean up the data first. 
 Let's begin by assigning the column names more descriptive names:
 
-```{r}
+```{r, error=TRUE, collapse=TRUE, warning=FALSE}
 puma_data <- puma_data %>% rename(Age = AGEP,
                                   EducationLevel = SCHL,
                                   Income = PINCP,
@@ -78,21 +86,30 @@ We can remove the the ST, Serial Number, and housing weight columns for now,
 since we don't really need that information. I'll keep PersonNumber in for now,
 but we can remove it if not needed.
 
-```{r}
+```{r, error=TRUE, collapse=TRUE, warning=FALSE}
 puma_data <- puma_data %>% 
   select(-ST, -SERIALNO, -WGTP, -PWGTP)
 ```
 
 Next I'll rearrange the columns:
 
-```{r}
+```{r, error=TRUE, collapse=TRUE, warning=FALSE}
 puma_data <- puma_data %>%
   select(EducationLevel, Income, Age, Sex, PersonNumber)
 ```
 
 Now we should work on the variable codes to convert them to their actual descriptions to make the content easier to peruse. We'll start with Education Level and convert it from it's characters to the actual descriptions.
 
-```{r}
+```{r, error=TRUE, collapse=TRUE, warning=FALSE}
+puma_data <- puma_data %>%
+  mutate(
+    EducationLevel = case_when(
+      EducationLevel == "bb" ~ "00",
+      TRUE ~ EducationLevel
+    ),
+    EducationNumber = as.numeric(EducationLevel)
+  )
+
 puma_data <- puma_data %>%
   mutate(
     EducationLevel = case_when(
@@ -128,7 +145,7 @@ puma_data <- puma_data %>%
 
 Now lets identify the genders in the dataset:
 
-```{r}
+```{r, error=TRUE, collapse=TRUE, warning=FALSE}
 puma_data <- puma_data %>%
   mutate(
     Sex = case_when(
@@ -142,6 +159,27 @@ puma_data <- puma_data %>%
 With the data mostly cleaned up, we can now explore the data.
 
 ## Explore the data
+
+We want to get a sense for the data that we'll be working with so first we'll find the range of ages that we have in our dataset. This shows that our mean and median age is very close together (43.1 and 43 respectively) showing a good distribution of ages; with a max age of 95. Education level has a similar mean and median (16.31, and 18 respectively), and it gives us a good way to  picture our distribution as well.  Unlike our age distribution the income mean and median are a bit off (35,364 and 21,000 respectively). This is something we may need to look into more in a graphical view. We also provide a table of the levels of education and the their counts.
+```{r, error=TRUE, collapse=TRUE, warning=FALSE}
+#Summarizing the ranges of numerical 
+summary(puma_data$Age) #Range of Age
+summary(puma_data$Income) #Range of Age
+summary(puma_data$EducationNumber) #Range of Education
+table(puma_data$EducationLevel) #Count of each level of education
+```
+
+Next we'll take a look into the income distribution in a graphical view. For this view we will also remove those that are below 0. This allows us to see a very long tailed view of the income distribution for our dataset. Our mean being the tallest point in the graph being around that $21,000 we saw in our exploration.
+
+```{r, error=TRUE, collapse=TRUE, warning=FALSE}
+ggplot(puma_data %>% filter(Income > 0), aes(Income)) +
+  geom_histogram(binwidth = 10000) +
+  scale_x_continuous(labels = function(x) paste0(x / 1000, "K")) +
+  labs(title = "Income Distribution in Oregon"
+       , x = "Income by $10k"
+       , y = "Count of Individuals") +
+  theme_minimal()
+```
 
 [Reference on Variables for now](https://usa.ipums.org/usa/resources/codebooks/DataDict1822.pdf)
 
