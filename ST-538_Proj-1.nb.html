@@ -15,7 +15,7 @@
 <meta name="author" content="Spencer Hutchison" />
 
 
-<title>ST 538 Project 1 R Notebook</title>
+<title>Data Wizards (Group 4) Project 1 R Notebook</title>
 
 <script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -1750,7 +1750,8 @@ display: none;
 
 
 
-<h1 class="title toc-ignore">ST 538 Project 1 R Notebook</h1>
+<h1 class="title toc-ignore">Data Wizards (Group 4) Project 1 R
+Notebook</h1>
 <h4 class="author">Di Chen</h4>
 <h4 class="author">Mai Castellano</h4>
 <h4 class="author">Tyler Kussee</h4>
@@ -1766,21 +1767,35 @@ display: none;
 <!-- rnb-text-begin -->
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-output-begin eyJkYXRhIjoi4pSA4pSAIEF0dGFjaGluZyBjb3JlIHRpZHl2ZXJzZSBwYWNrYWdlcyDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIAgdGlkeXZlcnNlIDIuMC4wIOKUgOKUgFxu4pyUIGRwbHlyICAgICAxLjEuNCAgICAg4pyUIHJlYWRyICAgICAyLjEuNVxu4pyUIGZvcmNhdHMgICAxLjAuMCAgICAg4pyUIHN0cmluZ3IgICAxLjUuMVxu4pyUIGdncGxvdDIgICAzLjUuMCAgICAg4pyUIHRpYmJsZSAgICAzLjIuMVxu4pyUIGx1YnJpZGF0ZSAxLjkuMyAgICAg4pyUIHRpZHlyICAgICAxLjMuMVxu4pyUIHB1cnJyICAgICAxLjAuMiAgICAg4pSA4pSAIENvbmZsaWN0cyDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIAgdGlkeXZlcnNlX2NvbmZsaWN0cygpIOKUgOKUgFxu4pyWIGRwbHlyOjpmaWx0ZXIoKSBtYXNrcyBzdGF0czo6ZmlsdGVyKClcbuKcliBkcGx5cjo6bGFnKCkgICAgbWFza3Mgc3RhdHM6OmxhZygpXG7ihLkgVXNlIHRoZSBcdTAwMWJdODs7aHR0cDovL2NvbmZsaWN0ZWQuci1saWIub3JnL1x1MDAwN2NvbmZsaWN0ZWQgcGFja2FnZVx1MDAxYl04OztcdTAwMDcgdG8gZm9yY2UgYWxsIGNvbmZsaWN0cyB0byBiZWNvbWUgZXJyb3JzVG8gaW5zdGFsbCB5b3VyIEFQSSBrZXkgZm9yIHVzZSBpbiBmdXR1cmUgc2Vzc2lvbnMsIHJ1biB0aGlzIGZ1bmN0aW9uIHdpdGggYGluc3RhbGwgPSBUUlVFYC5cbiJ9 -->
-<pre><code>── Attaching core tidyverse packages ────────────────────────────────────────────────────────────────────────────────── tidyverse 2.0.0 ──
-✔ dplyr     1.1.4     ✔ readr     2.1.5
-✔ forcats   1.0.0     ✔ stringr   1.5.1
-✔ ggplot2   3.5.0     ✔ tibble    3.2.1
-✔ lubridate 1.9.3     ✔ tidyr     1.3.1
-✔ purrr     1.0.2     ── Conflicts ──────────────────────────────────────────────────────────────────────────────────────────────────── tidyverse_conflicts() ──
-✖ dplyr::filter() masks stats::filter()
-✖ dplyr::lag()    masks stats::lag()
-ℹ Use the ]8;;http://conflicted.r-lib.org/conflicted package]8;; to force all conflicts to become errorsTo install your API key for use in future sessions, run this function with `install = TRUE`.</code></pre>
-<!-- rnb-output-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
+<div id="introduction" class="section level1">
+<h1>Introduction</h1>
+<p>The American Community Survey is an ongoing survey that provides
+vital information on a yearly basis about our nation and it’s people.
+The information from the survey generates data that helps inform how
+trillions of dollars in federal funds are distributed.</p>
+<p>With the data from the American Community Survey, the Data Wizards
+have come up with the following 3 questions they would like to
+answer:</p>
+<ul>
+<li>Does higher education mean higher income accounting for sex and
+age?</li>
+<li>Can we predict household income based on education, occupation, and
+race/ethnicity?</li>
+<li>Is there a relationship between race/ethnicity and home
+ownership?</li>
+</ul>
+<p>In particular, we’ll be focusing on the first question to get
+started.</p>
 <div id="obtain-the-data" class="section level2">
 <h2>Obtain the Data</h2>
+<p>In the case of the ACS dataset, we’ll pull it via an API. We’ve
+already declared our key earlier, so now we just need to pull our
+dataset with the variables and filtering we’d like. In this case we’ll
+want to pull our Age (AGEP), Education Level (SCHL), sex (SEX), and
+Total Person’s Income (PINCP) while filtering to the year 2022 and the
+State of OR.</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
 <!-- rnb-chunk-end -->
@@ -1788,6 +1803,102 @@ display: none;
 </div>
 <div id="scrub-the-data" class="section level2">
 <h2>Scrub the data</h2>
+<p>Since we’ve already pulled the data, now we need to just clean up the
+data first. Let’s begin by assigning the column names more descriptive
+names:</p>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyNSZW5hbWUgY29sdW1uIG5hbWVzIHdpdGggYSBtdXRhdGUuXG5wdW1hX2RhdGEgPC0gcHVtYV9kYXRhICU+JSByZW5hbWUoQWdlID0gQUdFUCxcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBFZHVjYXRpb25MZXZlbCA9IFNDSEwsXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgSW5jb21lID0gUElOQ1AsXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgU2V4ID0gU0VYLFxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIFBlcnNvbk51bWJlciA9IFNQT1JERVIpXG5gYGAifQ== -->
+<pre class="r"><code>##Rename column names with a mutate.
+puma_data &lt;- puma_data %&gt;% rename(Age = AGEP,
+                                  EducationLevel = SCHL,
+                                  Income = PINCP,
+                                  Sex = SEX,
+                                  PersonNumber = SPORDER)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<p>We can remove the the ST, Serial Number, and housing weight columns
+for now, since we don’t really need that information. I’ll keep
+PersonNumber in for now, but we can remove it if not needed.</p>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxucHVtYV9kYXRhIDwtIHB1bWFfZGF0YSAlPiUgXG4gIHNlbGVjdCgtU1QsIC1TRVJJQUxOTylcblxuYGBgIn0= -->
+<pre class="r"><code>puma_data &lt;- puma_data %&gt;% 
+  select(-ST, -SERIALNO)
+</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiRXJyb3IgaW4gYHNlbGVjdCgpYDpcbiEgQ2FuJ3Qgc2VsZWN0IGNvbHVtbnMgdGhhdCBkb24ndCBleGlzdC5cbuKcliBDb2x1bW4gYFNUYCBkb2Vzbid0IGV4aXN0LlxuQmFja3RyYWNlOlxuIDEuIHB1bWFfZGF0YSAlPiUgc2VsZWN0KC1TVCwgLVNFUklBTE5PKVxuIDMuIGRwbHlyOjo6c2VsZWN0LmRhdGEuZnJhbWUoLiwgLVNULCAtU0VSSUFMTk8pXG4ifQ== -->
+<pre><code>Error in `select()`:
+! Can&#39;t select columns that don&#39;t exist.
+✖ Column `ST` doesn&#39;t exist.
+Backtrace:
+ 1. puma_data %&gt;% select(-ST, -SERIALNO)
+ 3. dplyr:::select.data.frame(., -ST, -SERIALNO)</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<p>Next I’ll rearrange the columns:</p>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<p>Now we should work on the variable codes to convert them to their
+actual descriptions to make the content easier to peruse. We’ll start
+with Education Level and convert it from it’s characters to the actual
+descriptions.</p>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxucHVtYV9kYXRhIDwtIHB1bWFfZGF0YSAlPiVcbiAgbXV0YXRlKFxuICAgIEVkdWNhdGlvbkxldmVsID0gY2FzZV93aGVuKFxuICAgICAgRWR1Y2F0aW9uTGV2ZWwgPT0gXCJiYlwiIH4gXCIobGVzcyB0aGFuIDMgeWVhcnMgb2xkKVwiLFxuICAgICAgRWR1Y2F0aW9uTGV2ZWwgPT0gXCIwMVwiIH4gXCJObyBzY2hvb2xpbmcgY29tcGxldGVkXCIsXG4gICAgICBFZHVjYXRpb25MZXZlbCA9PSBcIjAyXCIgfiBcIk51cnNlcnkgU2Nob29sIC8gUHJlc2Nob29sXCIsXG4gICAgICBFZHVjYXRpb25MZXZlbCA9PSBcIjAzXCIgfiBcIktpbmRlcmdhcnRlblwiLFxuICAgICAgRWR1Y2F0aW9uTGV2ZWwgPT0gXCIwNFwiIH4gXCJHcmFkZSAxXCIsXG4gICAgICBFZHVjYXRpb25MZXZlbCA9PSBcIjA1XCIgfiBcIkdyYWRlIDJcIixcbiAgICAgIEVkdWNhdGlvbkxldmVsID09IFwiMDZcIiB+IFwiR3JhZGUgM1wiLFxuICAgICAgRWR1Y2F0aW9uTGV2ZWwgPT0gXCIwN1wiIH4gXCJHcmFkZSA0XCIsXG4gICAgICBFZHVjYXRpb25MZXZlbCA9PSBcIjA4XCIgfiBcIkdyYWRlIDVcIixcbiAgICAgIEVkdWNhdGlvbkxldmVsID09IFwiMDlcIiB+IFwiR3JhZGUgNlwiLFxuICAgICAgRWR1Y2F0aW9uTGV2ZWwgPT0gXCIxMFwiIH4gXCJHcmFkZSA3XCIsXG4gICAgICBFZHVjYXRpb25MZXZlbCA9PSBcIjExXCIgfiBcIkdyYWRlIDhcIixcbiAgICAgIEVkdWNhdGlvbkxldmVsID09IFwiMTJcIiB+IFwiR3JhZGUgOVwiLFxuICAgICAgRWR1Y2F0aW9uTGV2ZWwgPT0gXCIxM1wiIH4gXCJHcmFkZSAxMFwiLFxuICAgICAgRWR1Y2F0aW9uTGV2ZWwgPT0gXCIxNFwiIH4gXCJHcmFkZSAxMVwiLFxuICAgICAgRWR1Y2F0aW9uTGV2ZWwgPT0gXCIxNVwiIH4gXCJHcmFkZSAxMiAtIG5vIGRpcGxvbWFcIixcbiAgICAgIEVkdWNhdGlvbkxldmVsID09IFwiMTZcIiB+IFwiUmVndWxhciBoaWdoIHNjaG9vbCBkaXBsb21hXCIsXG4gICAgICBFZHVjYXRpb25MZXZlbCA9PSBcIjE3XCIgfiBcIkdFRCBvciBhbHRlcm5hdGl2ZSBjcmVkZW50aWFsXCIsXG4gICAgICBFZHVjYXRpb25MZXZlbCA9PSBcIjE4XCIgfiBcIlNvbWUgY29sbGVnZSwgYnV0IGxlc3MgdGhhbiAxIHllYXJcIixcbiAgICAgIEVkdWNhdGlvbkxldmVsID09IFwiMTlcIiB+IFwiMSBvciBtb3JlIHllYXJzIG9mIGNvbGxlZ2UgY3JlZGl0LCBubyBkZWdyZWVcIixcbiAgICAgIEVkdWNhdGlvbkxldmVsID09IFwiMjBcIiB+IFwiQXNzb2NpYXRlcyBEZWdyZWVcIixcbiAgICAgIEVkdWNhdGlvbkxldmVsID09IFwiMjFcIiB+IFwiQmFjaGVsb3JzIERlZ3JlZVwiLFxuICAgICAgRWR1Y2F0aW9uTGV2ZWwgPT0gXCIyMlwiIH4gXCJNYXN0ZXJzIERlZ3JlZVwiLFxuICAgICAgRWR1Y2F0aW9uTGV2ZWwgPT0gXCIyM1wiIH4gXCJQcm9mZXNzaW9uYWwgRGVncmVlIGJleW9uZCBhIEJhY2hlbG9ycyBEZWdyZWVcIixcbiAgICAgIEVkdWNhdGlvbkxldmVsID09IFwiMjRcIiB+IFwiRG9jdG9yYXRlIERlZ3JlZVwiLFxuICAgICAgVFJVRSB+IGFzLmNoYXJhY3RlcihFZHVjYXRpb25MZXZlbClcbiAgICApXG4pXG5gYGAifQ== -->
+<pre class="r"><code>puma_data &lt;- puma_data %&gt;%
+  mutate(
+    EducationLevel = case_when(
+      EducationLevel == &quot;bb&quot; ~ &quot;(less than 3 years old)&quot;,
+      EducationLevel == &quot;01&quot; ~ &quot;No schooling completed&quot;,
+      EducationLevel == &quot;02&quot; ~ &quot;Nursery School / Preschool&quot;,
+      EducationLevel == &quot;03&quot; ~ &quot;Kindergarten&quot;,
+      EducationLevel == &quot;04&quot; ~ &quot;Grade 1&quot;,
+      EducationLevel == &quot;05&quot; ~ &quot;Grade 2&quot;,
+      EducationLevel == &quot;06&quot; ~ &quot;Grade 3&quot;,
+      EducationLevel == &quot;07&quot; ~ &quot;Grade 4&quot;,
+      EducationLevel == &quot;08&quot; ~ &quot;Grade 5&quot;,
+      EducationLevel == &quot;09&quot; ~ &quot;Grade 6&quot;,
+      EducationLevel == &quot;10&quot; ~ &quot;Grade 7&quot;,
+      EducationLevel == &quot;11&quot; ~ &quot;Grade 8&quot;,
+      EducationLevel == &quot;12&quot; ~ &quot;Grade 9&quot;,
+      EducationLevel == &quot;13&quot; ~ &quot;Grade 10&quot;,
+      EducationLevel == &quot;14&quot; ~ &quot;Grade 11&quot;,
+      EducationLevel == &quot;15&quot; ~ &quot;Grade 12 - no diploma&quot;,
+      EducationLevel == &quot;16&quot; ~ &quot;Regular high school diploma&quot;,
+      EducationLevel == &quot;17&quot; ~ &quot;GED or alternative credential&quot;,
+      EducationLevel == &quot;18&quot; ~ &quot;Some college, but less than 1 year&quot;,
+      EducationLevel == &quot;19&quot; ~ &quot;1 or more years of college credit, no degree&quot;,
+      EducationLevel == &quot;20&quot; ~ &quot;Associates Degree&quot;,
+      EducationLevel == &quot;21&quot; ~ &quot;Bachelors Degree&quot;,
+      EducationLevel == &quot;22&quot; ~ &quot;Masters Degree&quot;,
+      EducationLevel == &quot;23&quot; ~ &quot;Professional Degree beyond a Bachelors Degree&quot;,
+      EducationLevel == &quot;24&quot; ~ &quot;Doctorate Degree&quot;,
+      TRUE ~ as.character(EducationLevel)
+    )
+)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<p>Now lets identify the genders in the dataset:</p>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxucHVtYV9kYXRhIDwtIHB1bWFfZGF0YSAlPiVcbiAgbXV0YXRlKFxuICAgIFNleCA9IGNhc2Vfd2hlbihcbiAgICAgIFNleCA9PSAxIH4gXCJNYWxlXCIsXG4gICAgICBTZXggPT0gMiB+IFwiRmVtYWxlXCIsXG4gICAgICBUUlVFIH4gYXMuY2hhcmFjdGVyKFNleClcbiAgICApXG4pXG5gYGAifQ== -->
+<pre class="r"><code>puma_data &lt;- puma_data %&gt;%
+  mutate(
+    Sex = case_when(
+      Sex == 1 ~ &quot;Male&quot;,
+      Sex == 2 ~ &quot;Female&quot;,
+      TRUE ~ as.character(Sex)
+    )
+)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
 </div>
 <div id="explore-the-data" class="section level2">
 <h2>Explore the data</h2>
@@ -1801,8 +1912,9 @@ on Variables for now</a></p>
 <h2>Interpret the data</h2>
 <!-- rnb-text-end -->
 </div>
+</div>
 
-<div id="rmd-source-code">LS0tDQp0aXRsZTogIlNUIDUzOCBQcm9qZWN0IDEgUiBOb3RlYm9vayINCmF1dGhvcjoNCiAgLSBEaSBDaGVuDQogIC0gTWFpIENhc3RlbGxhbm8NCiAgLSBUeWxlciBLdXNzZWUNCiAgLSBTcGVuY2VyIEh1dGNoaXNvbg0Kb3V0cHV0Og0KICBwZGZfZG9jdW1lbnQ6IGRlZmF1bHQNCiAgaHRtbF9ub3RlYm9vazogZGVmYXVsdA0KLS0tDQoNCmBgYHtyIGVjaG89RkFMU0UsIG1lc3NhZ2U9RkFMU0V9DQojIyBGb3IgeW91ciBub3RlcywgYW4gaWYgc3RhdGVtZW50IGZvciBjaGVja2luZyBpZiBhIHBhY2thZ2UgaXMgaW5zdGFsbGVkIDopDQojaWYoIXJlcXVpcmUoc29tZXBhY2thZ2UpKXsNCiMgICAgaW5zdGFsbC5wYWNrYWdlcygic29tZXBhY2thZ2UiKQ0KIyAgICBsaWJyYXJ5KHNvbWVwYWNrYWdlKQ0KI30NCg0KaWYgKCFyZXF1aXJlKHRpZHljZW5zdXMpKSB7DQogIGluc3RhbGwucGFja2FnZXMoInRpZHljZW5zdXMiKQ0KfQ0KaWYgKCFyZXF1aXJlKHRpZHl2ZXJzZSkpIHsNCiAgaW5zdGFsbC5wYWNrYWdlcygidGlkeXZlcnNlIikNCn0NCmBgYA0KDQoNCmBgYHtyIGVjaG89RkFMU0UsIG1lc3NhZ2U9RkFMU0V9DQpsaWJyYXJ5KHRpZHljZW5zdXMpDQpsaWJyYXJ5KHRpZHl2ZXJzZSkNCg0KY2Vuc3VzX2FwaV9rZXkoIjI1NDdjOTVjZTMzYjFlZDBlZWMzYWFmZDBmZDg1MjZhNWJiOWEyMmUiKQ0KYGBgDQoNCg0KDQojIyBPYnRhaW4gdGhlIERhdGENCg0KYGBge3IgZWNobz1GQUxTRSwgbWVzc2FnZT1GQUxTRSwgcmVzdWx0cz0naGlkZSd9DQpwdW1hX2RhdGEgPC0gZ2V0X3B1bXModmFyaWFibGVzID0gYygiQUdFUCIsIlNDSEwiLCJQSU5DUCIpDQogICAgICAgICAgICAgICAgICAgICAgLHN0YXRlID0gIk9SIg0KICAgICAgICAgICAgICAgICAgICAgICx5ZWFyID0gMjAyMikNCmBgYA0KDQojIyBTY3J1YiB0aGUgZGF0YQ0KDQojIyBFeHBsb3JlIHRoZSBkYXRhDQoNCltSZWZlcmVuY2Ugb24gVmFyaWFibGVzIGZvciBub3ddKGh0dHBzOi8vdXNhLmlwdW1zLm9yZy91c2EvcmVzb3VyY2VzL2NvZGVib29rcy9EYXRhRGljdDE4MjIucGRmKQ0KDQojIyBNb2RlbCB0aGUgZGF0YQ0KDQojIyBJbnRlcnByZXQgdGhlIGRhdGENCg==</div>
+<div id="rmd-source-code">LS0tDQp0aXRsZTogIkRhdGEgV2l6YXJkcyAoR3JvdXAgNCkgUHJvamVjdCAxIFIgTm90ZWJvb2siDQphdXRob3I6DQogIC0gRGkgQ2hlbg0KICAtIE1haSBDYXN0ZWxsYW5vDQogIC0gVHlsZXIgS3Vzc2VlDQogIC0gU3BlbmNlciBIdXRjaGlzb24NCm91dHB1dDoNCiAgcGRmX2RvY3VtZW50OiBkZWZhdWx0DQogIGh0bWxfbm90ZWJvb2s6IGRlZmF1bHQNCi0tLQ0KDQpgYGB7ciBlY2hvPUZBTFNFLCBtZXNzYWdlPUZBTFNFfQ0KIyMgRm9yIHlvdXIgbm90ZXMsIGFuIGlmIHN0YXRlbWVudCBmb3IgY2hlY2tpbmcgaWYgYSBwYWNrYWdlIGlzIGluc3RhbGxlZCA6KQ0KI2lmKCFyZXF1aXJlKHNvbWVwYWNrYWdlKSl7DQojICAgIGluc3RhbGwucGFja2FnZXMoInNvbWVwYWNrYWdlIikNCiMgICAgbGlicmFyeShzb21lcGFja2FnZSkNCiN9DQoNCmlmICghcmVxdWlyZSh0aWR5Y2Vuc3VzKSkgew0KICBpbnN0YWxsLnBhY2thZ2VzKCJ0aWR5Y2Vuc3VzIikNCn0NCmlmICghcmVxdWlyZSh0aWR5dmVyc2UpKSB7DQogIGluc3RhbGwucGFja2FnZXMoInRpZHl2ZXJzZSIpDQp9DQpgYGANCg0KDQpgYGB7ciBlY2hvPUZBTFNFLCBtZXNzYWdlPUZBTFNFfQ0KbGlicmFyeSh0aWR5Y2Vuc3VzKQ0KbGlicmFyeSh0aWR5dmVyc2UpDQoNCmNlbnN1c19hcGlfa2V5KCIyNTQ3Yzk1Y2UzM2IxZWQwZWVjM2FhZmQwZmQ4NTI2YTViYjlhMjJlIikNCmBgYA0KDQojIEludHJvZHVjdGlvbg0KDQpUaGUgQW1lcmljYW4gQ29tbXVuaXR5IFN1cnZleSBpcyBhbiBvbmdvaW5nIHN1cnZleSB0aGF0IHByb3ZpZGVzIHZpdGFsIGluZm9ybWF0aW9uDQpvbiBhIHllYXJseSBiYXNpcyBhYm91dCBvdXIgbmF0aW9uIGFuZCBpdCdzIHBlb3BsZS4gVGhlIGluZm9ybWF0aW9uIGZyb20gdGhlIHN1cnZleSANCmdlbmVyYXRlcyBkYXRhIHRoYXQgaGVscHMgaW5mb3JtIGhvdyB0cmlsbGlvbnMgb2YgZG9sbGFycyBpbiBmZWRlcmFsIGZ1bmRzIGFyZSBkaXN0cmlidXRlZC4NCg0KV2l0aCB0aGUgZGF0YSBmcm9tIHRoZSBBbWVyaWNhbiBDb21tdW5pdHkgU3VydmV5LCB0aGUgRGF0YSBXaXphcmRzIGhhdmUgY29tZSB1cCANCndpdGggdGhlIGZvbGxvd2luZyAzIHF1ZXN0aW9ucyB0aGV5IHdvdWxkIGxpa2UgdG8gYW5zd2VyOg0KDQoqIERvZXMgaGlnaGVyIGVkdWNhdGlvbiBtZWFuIGhpZ2hlciBpbmNvbWUgYWNjb3VudGluZyBmb3Igc2V4IGFuZCBhZ2U/DQoqIENhbiB3ZSBwcmVkaWN0IGhvdXNlaG9sZCBpbmNvbWUgYmFzZWQgb24gZWR1Y2F0aW9uLCBvY2N1cGF0aW9uLCBhbmQgcmFjZS9ldGhuaWNpdHk/DQoqIElzIHRoZXJlIGEgcmVsYXRpb25zaGlwIGJldHdlZW4gcmFjZS9ldGhuaWNpdHkgYW5kIGhvbWUgb3duZXJzaGlwPw0KDQpJbiBwYXJ0aWN1bGFyLCB3ZSdsbCBiZSBmb2N1c2luZyBvbiB0aGUgZmlyc3QgcXVlc3Rpb24gdG8gZ2V0IHN0YXJ0ZWQuDQoNCiMjIE9idGFpbiB0aGUgRGF0YQ0KDQpJbiB0aGUgY2FzZSBvZiB0aGUgQUNTIGRhdGFzZXQsIHdlJ2xsIHB1bGwgaXQgdmlhIGFuIEFQSS4gV2UndmUgYWxyZWFkeSBkZWNsYXJlZA0Kb3VyIGtleSBlYXJsaWVyLCBzbyBub3cgd2UganVzdCBuZWVkIHRvIHB1bGwgb3VyIGRhdGFzZXQgd2l0aCB0aGUgdmFyaWFibGVzIGFuZCBmaWx0ZXJpbmcgDQp3ZSdkIGxpa2UuIEluIHRoaXMgY2FzZSB3ZSdsbCB3YW50IHRvIHB1bGwgb3VyIEFnZSAoQUdFUCksIEVkdWNhdGlvbiBMZXZlbCAoU0NITCksIA0Kc2V4IChTRVgpLCBhbmQgVG90YWwgUGVyc29uJ3MgSW5jb21lIChQSU5DUCkgd2hpbGUgZmlsdGVyaW5nIHRvIHRoZSB5ZWFyIDIwMjIgYW5kIHRoZSBTdGF0ZSBvZiBPUi4NCg0KYGBge3IgZWNobz1GQUxTRSwgbWVzc2FnZT1GQUxTRSwgcmVzdWx0cz0naGlkZSd9DQpwdW1hX2RhdGEgPC0gZ2V0X3B1bXModmFyaWFibGVzID0gYygiQUdFUCIsIlNDSEwiLCJQSU5DUCIsICJTRVgiKQ0KICAgICAgICAgICAgICAgICAgICAgICxzdGF0ZSA9ICJPUiINCiAgICAgICAgICAgICAgICAgICAgICAseWVhciA9IDIwMjIpDQpgYGANCg0KIyMgU2NydWIgdGhlIGRhdGENCg0KU2luY2Ugd2UndmUgYWxyZWFkeSBwdWxsZWQgdGhlIGRhdGEsIG5vdyB3ZSBuZWVkIHRvIGp1c3QgY2xlYW4gdXAgdGhlIGRhdGEgZmlyc3QuIA0KTGV0J3MgYmVnaW4gYnkgYXNzaWduaW5nIHRoZSBjb2x1bW4gbmFtZXMgbW9yZSBkZXNjcmlwdGl2ZSBuYW1lczoNCg0KYGBge3J9DQojI1JlbmFtZSBjb2x1bW4gbmFtZXMgd2l0aCBhIG11dGF0ZS4NCnB1bWFfZGF0YSA8LSBwdW1hX2RhdGEgJT4lIHJlbmFtZShBZ2UgPSBBR0VQLA0KICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIEVkdWNhdGlvbkxldmVsID0gU0NITCwNCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBJbmNvbWUgPSBQSU5DUCwNCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBTZXggPSBTRVgsDQogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgUGVyc29uTnVtYmVyID0gU1BPUkRFUikNCmBgYA0KDQpXZSBjYW4gcmVtb3ZlIHRoZSB0aGUgU1QsIFNlcmlhbCBOdW1iZXIsIGFuZCBob3VzaW5nIHdlaWdodCBjb2x1bW5zIGZvciBub3csIA0Kc2luY2Ugd2UgZG9uJ3QgcmVhbGx5IG5lZWQgdGhhdCBpbmZvcm1hdGlvbi4gSSdsbCBrZWVwIFBlcnNvbk51bWJlciBpbiBmb3Igbm93LA0KYnV0IHdlIGNhbiByZW1vdmUgaXQgaWYgbm90IG5lZWRlZC4NCg0KYGBge3J9DQpwdW1hX2RhdGEgPC0gcHVtYV9kYXRhICU+JSANCiAgc2VsZWN0KC1TVCwgLVNFUklBTE5PLCAtV0dUUCwgLVBXR1RQKQ0KYGBgDQoNCk5leHQgSSdsbCByZWFycmFuZ2UgdGhlIGNvbHVtbnM6DQoNCmBgYHtyfQ0KcHVtYV9kYXRhIDwtIHB1bWFfZGF0YSAlPiUNCiAgc2VsZWN0KEVkdWNhdGlvbkxldmVsLCBJbmNvbWUsIEFnZSwgU2V4LCBQZXJzb25OdW1iZXIpDQpgYGANCg0KTm93IHdlIHNob3VsZCB3b3JrIG9uIHRoZSB2YXJpYWJsZSBjb2RlcyB0byBjb252ZXJ0IHRoZW0gdG8gdGhlaXIgYWN0dWFsIGRlc2NyaXB0aW9ucyB0byBtYWtlIHRoZSBjb250ZW50IGVhc2llciB0byBwZXJ1c2UuIFdlJ2xsIHN0YXJ0IHdpdGggRWR1Y2F0aW9uIExldmVsIGFuZCBjb252ZXJ0IGl0IGZyb20gaXQncyBjaGFyYWN0ZXJzIHRvIHRoZSBhY3R1YWwgZGVzY3JpcHRpb25zLg0KDQpgYGB7cn0NCnB1bWFfZGF0YSA8LSBwdW1hX2RhdGEgJT4lDQogIG11dGF0ZSgNCiAgICBFZHVjYXRpb25MZXZlbCA9IGNhc2Vfd2hlbigNCiAgICAgIEVkdWNhdGlvbkxldmVsID09ICJiYiIgfiAiKGxlc3MgdGhhbiAzIHllYXJzIG9sZCkiLA0KICAgICAgRWR1Y2F0aW9uTGV2ZWwgPT0gIjAxIiB+ICJObyBzY2hvb2xpbmcgY29tcGxldGVkIiwNCiAgICAgIEVkdWNhdGlvbkxldmVsID09ICIwMiIgfiAiTnVyc2VyeSBTY2hvb2wgLyBQcmVzY2hvb2wiLA0KICAgICAgRWR1Y2F0aW9uTGV2ZWwgPT0gIjAzIiB+ICJLaW5kZXJnYXJ0ZW4iLA0KICAgICAgRWR1Y2F0aW9uTGV2ZWwgPT0gIjA0IiB+ICJHcmFkZSAxIiwNCiAgICAgIEVkdWNhdGlvbkxldmVsID09ICIwNSIgfiAiR3JhZGUgMiIsDQogICAgICBFZHVjYXRpb25MZXZlbCA9PSAiMDYiIH4gIkdyYWRlIDMiLA0KICAgICAgRWR1Y2F0aW9uTGV2ZWwgPT0gIjA3IiB+ICJHcmFkZSA0IiwNCiAgICAgIEVkdWNhdGlvbkxldmVsID09ICIwOCIgfiAiR3JhZGUgNSIsDQogICAgICBFZHVjYXRpb25MZXZlbCA9PSAiMDkiIH4gIkdyYWRlIDYiLA0KICAgICAgRWR1Y2F0aW9uTGV2ZWwgPT0gIjEwIiB+ICJHcmFkZSA3IiwNCiAgICAgIEVkdWNhdGlvbkxldmVsID09ICIxMSIgfiAiR3JhZGUgOCIsDQogICAgICBFZHVjYXRpb25MZXZlbCA9PSAiMTIiIH4gIkdyYWRlIDkiLA0KICAgICAgRWR1Y2F0aW9uTGV2ZWwgPT0gIjEzIiB+ICJHcmFkZSAxMCIsDQogICAgICBFZHVjYXRpb25MZXZlbCA9PSAiMTQiIH4gIkdyYWRlIDExIiwNCiAgICAgIEVkdWNhdGlvbkxldmVsID09ICIxNSIgfiAiR3JhZGUgMTIgLSBubyBkaXBsb21hIiwNCiAgICAgIEVkdWNhdGlvbkxldmVsID09ICIxNiIgfiAiUmVndWxhciBoaWdoIHNjaG9vbCBkaXBsb21hIiwNCiAgICAgIEVkdWNhdGlvbkxldmVsID09ICIxNyIgfiAiR0VEIG9yIGFsdGVybmF0aXZlIGNyZWRlbnRpYWwiLA0KICAgICAgRWR1Y2F0aW9uTGV2ZWwgPT0gIjE4IiB+ICJTb21lIGNvbGxlZ2UsIGJ1dCBsZXNzIHRoYW4gMSB5ZWFyIiwNCiAgICAgIEVkdWNhdGlvbkxldmVsID09ICIxOSIgfiAiMSBvciBtb3JlIHllYXJzIG9mIGNvbGxlZ2UgY3JlZGl0LCBubyBkZWdyZWUiLA0KICAgICAgRWR1Y2F0aW9uTGV2ZWwgPT0gIjIwIiB+ICJBc3NvY2lhdGVzIERlZ3JlZSIsDQogICAgICBFZHVjYXRpb25MZXZlbCA9PSAiMjEiIH4gIkJhY2hlbG9ycyBEZWdyZWUiLA0KICAgICAgRWR1Y2F0aW9uTGV2ZWwgPT0gIjIyIiB+ICJNYXN0ZXJzIERlZ3JlZSIsDQogICAgICBFZHVjYXRpb25MZXZlbCA9PSAiMjMiIH4gIlByb2Zlc3Npb25hbCBEZWdyZWUgYmV5b25kIGEgQmFjaGVsb3JzIERlZ3JlZSIsDQogICAgICBFZHVjYXRpb25MZXZlbCA9PSAiMjQiIH4gIkRvY3RvcmF0ZSBEZWdyZWUiLA0KICAgICAgVFJVRSB+IGFzLmNoYXJhY3RlcihFZHVjYXRpb25MZXZlbCkNCiAgICApDQopDQpgYGANCg0KTm93IGxldHMgaWRlbnRpZnkgdGhlIGdlbmRlcnMgaW4gdGhlIGRhdGFzZXQ6DQoNCmBgYHtyfQ0KcHVtYV9kYXRhIDwtIHB1bWFfZGF0YSAlPiUNCiAgbXV0YXRlKA0KICAgIFNleCA9IGNhc2Vfd2hlbigNCiAgICAgIFNleCA9PSAxIH4gIk1hbGUiLA0KICAgICAgU2V4ID09IDIgfiAiRmVtYWxlIiwNCiAgICAgIFRSVUUgfiBhcy5jaGFyYWN0ZXIoU2V4KQ0KICAgICkNCikNCmBgYA0KDQoNCiMjIEV4cGxvcmUgdGhlIGRhdGENCg0KW1JlZmVyZW5jZSBvbiBWYXJpYWJsZXMgZm9yIG5vd10oaHR0cHM6Ly91c2EuaXB1bXMub3JnL3VzYS9yZXNvdXJjZXMvY29kZWJvb2tzL0RhdGFEaWN0MTgyMi5wZGYpDQoNCiMjIE1vZGVsIHRoZSBkYXRhDQoNCiMjIEludGVycHJldCB0aGUgZGF0YQ0K</div>
 
 
 
