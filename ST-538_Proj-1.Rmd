@@ -37,6 +37,8 @@ if (!require(ggplot2)) {
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 library(tidycensus)
 library(tidyverse)
+library(dplyr)
+library(ggplot2)
 
 census_api_key("2547c95ce33b1ed0eec3aafd0fd8526a5bb9a22e")
 ```
@@ -80,12 +82,9 @@ puma_data <- puma_data %>% rename(Age = AGEP,
                                   Income = PINCP,
                                   Sex = SEX,
                                   PersonNumber = SPORDER)
+head(puma_data[, 2:5])
 ```
 
-
-```{r}
-head(puma_data)
-```
 
 We can remove the the ST, Serial Number, and housing weight columns for now, 
 since we don't really need that information. I'll keep PersonNumber in for now,
@@ -97,58 +96,95 @@ puma_data <- puma_data %>%
 head(puma_data)
 ```
 
-Next I'll rearrange the columns:
+Now we'll clean up some of this data. in this case we'll convert "bb" in our Education
+level to a 0, and then convert our Educational level to numeric values.
 
-```{r, error=TRUE, collapse=TRUE, warning=FALSE}
-puma_data <- puma_data %>%
-  select(EducationLevel, Income, Age, Sex, PersonNumber)
-head(puma_data)
-```
-
-Now we should work on the variable codes to convert them to their actual descriptions to make the content easier to peruse. We'll start with Education Level and convert it from it's characters to the actual descriptions.
-
-```{r, error=TRUE, collapse=TRUE, warning=FALSE}
+```{r}
 puma_data <- puma_data %>%
   mutate(
     EducationLevel = case_when(
       EducationLevel == "bb" ~ "00",
       TRUE ~ EducationLevel
     ),
-    EducationNumber = as.numeric(EducationLevel)
+    EducationLevel = as.numeric(EducationLevel)
   )
+class(puma_data$EducationLevel)
+```
 
+Now we want to create groupings of our data. In this case, we'll be grouping education levels
+based on if they've had "No Education", "Lower Than High School", "High School", 
+"HS Diploma or GED", "Associates Degree", "Bachelors Degree", "Masters Degree", or
+a "Doctoral Degree".
+
+```{r}
+puma_data <- puma_data %>%
+  mutate(
+     EducationGroup = cut(EducationLevel, breaks = c(0, 2, 11, 16, 20, 21, 22, 24, Inf),
+                         labels = c("No schooling completed", "Less than High School",
+                                    "High School", "high school diploma or GED",
+                                    "Associates Degree", "Bachelors Degree",
+                                    "Masters Degree", "Doctorate Degree"),
+                         right = FALSE)
+  )
+unique(puma_data$EducationGroup)
+puma_data[1:50,]
+```
+
+
+Next I'll rearrange the columns:
+
+```{r, error=TRUE, collapse=TRUE, warning=FALSE}
+puma_data <- puma_data %>%
+  select(EducationGroup, EducationLevel, Income, Age, Sex, PersonNumber)
+head(puma_data)
+```
+
+Since we're interested in the income of individuals, let's remove all ages younger than 14. The legal working age of Oregon is 14 onwards.
+
+```{r}
+puma_data <- puma_data %>%
+  filter(Age >= 14)
+head(puma_data[puma_data$Age < 14,])
+```
+
+
+Now we should work on the variable codes to convert them to their actual descriptions to make the content easier to peruse. We'll start with Education Level and convert it from it's characters to the actual descriptions.
+
+```{r, error=TRUE, collapse=TRUE, warning=FALSE}
+
+#Since we're refactoring the Education levels to groups, commenting this original out.
 puma_data <- puma_data %>%
   mutate(
     EducationLevel = case_when(
-      EducationLevel == "bb" ~ "(less than 3 years old)",
-      EducationLevel == "01" ~ "No schooling completed",
-      EducationLevel == "02" ~ "Nursery School / Preschool",
-      EducationLevel == "03" ~ "Kindergarten",
-      EducationLevel == "04" ~ "Grade 1",
-      EducationLevel == "05" ~ "Grade 2",
-      EducationLevel == "06" ~ "Grade 3",
-      EducationLevel == "07" ~ "Grade 4",
-      EducationLevel == "08" ~ "Grade 5",
-      EducationLevel == "09" ~ "Grade 6",
-      EducationLevel == "10" ~ "Grade 7",
-      EducationLevel == "11" ~ "Grade 8",
-      EducationLevel == "12" ~ "Grade 9",
-      EducationLevel == "13" ~ "Grade 10",
-      EducationLevel == "14" ~ "Grade 11",
-      EducationLevel == "15" ~ "Grade 12 - no diploma",
-      EducationLevel == "16" ~ "Regular high school diploma",
-      EducationLevel == "17" ~ "GED or alternative credential",
-      EducationLevel == "18" ~ "Some college, but less than 1 year",
-      EducationLevel == "19" ~ "1 or more years of college credit, no degree",
-      EducationLevel == "20" ~ "Associates Degree",
-      EducationLevel == "21" ~ "Bachelors Degree",
-      EducationLevel == "22" ~ "Masters Degree",
-      EducationLevel == "23" ~ "Professional Degree beyond a Bachelors Degree",
-      EducationLevel == "24" ~ "Doctorate Degree",
+      EducationLevel == 0 ~ "(less than 3 years old)",
+      EducationLevel == 1 ~ "No schooling completed",
+      EducationLevel == 2 ~ "Nursery School / Preschool",
+      EducationLevel == 3 ~ "Kindergarten",
+      EducationLevel == 4 ~ "Grade 1",
+      EducationLevel == 5 ~ "Grade 2",
+      EducationLevel == 6 ~ "Grade 3",
+      EducationLevel == 7 ~ "Grade 4",
+      EducationLevel == 8 ~ "Grade 5",
+      EducationLevel == 9 ~ "Grade 6",
+      EducationLevel == 10 ~ "Grade 7",
+      EducationLevel == 11 ~ "Grade 8",
+      EducationLevel == 12 ~ "Grade 9",
+      EducationLevel == 13 ~ "Grade 10",
+      EducationLevel == 14 ~ "Grade 11",
+      EducationLevel == 15 ~ "Grade 12 - no diploma",
+      EducationLevel == 16 ~ "Regular high school diploma",
+      EducationLevel == 17 ~ "GED or alternative credential",
+      EducationLevel == 18 ~ "Some college, but less than 1 year",
+      EducationLevel == 19 ~ "1 or more years of college credit, no degree",
+      EducationLevel == 20 ~ "Associates Degree",
+      EducationLevel == 21 ~ "Bachelors Degree",
+      EducationLevel == 22 ~ "Masters Degree",
+      EducationLevel == 23 ~ "Professional Degree beyond a Bachelors Degree",
+      EducationLevel == 24 ~ "Doctorate Degree",
       TRUE ~ as.character(EducationLevel)
     )
 )
-head(puma_data)
+puma_data[1:100,]
 ```
 
 Now lets identify the genders in the dataset:
