@@ -1,15 +1,11 @@
 ---
-title: "Data Wizards (Group 4) Project 1 R Notebook"
+title: "Data Wizards (Group 4) Project 1"
 author:
 - Di Chen
 - Mai Castellano
 - Tyler Kussee
 - Spencer Hutchison
-output:
-  html_document:
-    df_print: paged
-  html_notebook: default
-  pdf_document: default
+output: pdf_document
 ---
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, results='hide'}
@@ -72,7 +68,7 @@ puma_data <- get_pums(variables = c("AGEP","SCHL","PINCP", "SEX")
 
 ## Scrub the data
 
-Since we've already pulled the data, now we need to just clean up the data first. Let's begin by assigning the column names more descriptive names:
+In the data cleaning process, we began by assigning more descriptive column names to enhance clarity. Columns such as "ST", "Serial Number", and "housing weight" were removed as they were deemed unnecessary for our analysis, while "PersonNumber" was retained for potential future use. Subsequently, we converted instances of "bb" in the Education level column to 0, followed by transforming the Education level into numeric values. Groupings were then created based on education levels, ranging from "No Education" to "Doctoral Degree". The column order was rearranged for better organization. As our focus is on income, individuals under the age of 14 were excluded from the dataset, aligning with Oregon's legal working age. Variable codes were converted to their corresponding descriptions, starting with Education Level. Lastly, we identified the genders present in the dataset to facilitate further analysis. This systematic approach ensures that the data is cleaned and structured appropriately for subsequent analysis.
 
 ```{r, error=TRUE, collapse=TRUE, warning=FALSE, echo=FALSE, results='hide'}
 #Rename the columns
@@ -84,9 +80,7 @@ puma_data <- puma_data %>% rename(Age = AGEP,
 head(puma_data[, 2:5])
 ```
 
-We can remove the the ST, Serial Number, and housing weight columns for now, 
-since we don't really need that information. I'll keep PersonNumber in for now,
-but we can remove it if not needed.
+
 
 ```{r, error=TRUE, collapse=TRUE, warning=FALSE, echo=FALSE, results='hide'}
 #Remove columns that are not needed
@@ -95,8 +89,6 @@ puma_data <- puma_data %>%
 head(puma_data)
 ```
 
-Now we'll clean up some of this data. in this case we'll convert "bb" in our Education
-level to a 0, and then convert our Educational level to numeric values.
 
 ```{r, message=FALSE, echo=FALSE, results='hide'}
 #Convert education levels
@@ -113,10 +105,7 @@ puma_data <- puma_data %>%
 class(puma_data$EducationLevel)
 ```
 
-Now we want to create groupings of our data. In this case, we'll be grouping education levels
-based on if they've had "No Education", "Lower Than High School", "High School", 
-"HS Diploma or GED", "Associates Degree", "Bachelors Degree", "Masters Degree", or
-a "Doctoral Degree".
+
 
 ```{r, message=FALSE, echo=FALSE, results='hide', warning=FALSE}
 ##Group education level
@@ -134,7 +123,6 @@ puma_data[1:50,]
 ```
 
 
-Next I'll rearrange the columns:
 
 ```{r, error=TRUE, collapse=TRUE, warning=FALSE, echo=FALSE, results='hide'}
 #Rearange the columns
@@ -143,7 +131,6 @@ puma_data <- puma_data %>%
 head(puma_data)
 ```
 
-Since we're interested in the income of individuals, let's remove all ages younger than 14. The legal working age of Oregon is 14 onwards.
 
 ```{r, message=FALSE, echo=FALSE, results='hide', warning=FALSE}
 #Drop age below 14
@@ -153,7 +140,6 @@ head(puma_data[puma_data$Age < 14,])
 ```
 
 
-Now we should work on the variable codes to convert them to their actual descriptions to make the content easier to peruse. We'll start with Education Level and convert it from it's characters to the actual descriptions.
 
 ```{r, error=TRUE, collapse=TRUE, warning=FALSE, echo=FALSE, results='hide'}
 #Since we're refactoring the Education levels to groups, commenting this original out.
@@ -191,7 +177,7 @@ puma_data <- puma_data %>%
 puma_data[1:100,]
 ```
 
-Now lets identify the genders in the dataset:
+
 
 ```{r, error=TRUE, collapse=TRUE, warning=FALSE, echo=FALSE, results='hide'}
 #Identify gender
@@ -210,9 +196,9 @@ With the data mostly cleaned up, we can now explore the data.
 
 ## Explore the data
 
-We want to get a sense for the data that we'll be working with so first we'll find the range of ages that we have in our dataset. This shows that our mean and median age is very close together (43.1 and 43 respectively) showing a good distribution of ages; with a max age of 95. Education level has a similar mean and median (16.31, and 18 respectively), and it gives us a good way to  picture our distribution as well.  Unlike our age distribution the income mean and median are a bit off (35,364 and 21,000 respectively). This is something we may need to look into more in a graphical view. We also provide a table of the levels of education and the their counts.
+We want to get a sense for the data that we'll be working with so first we'll find the range of ages that we have in our dataset. This shows that our mean and median age is very close together (43.1 and 43 respectively) showing a good distribution of ages; with a max age of 95. Education level has a similar mean and median (16.31, and 18 respectively), and it gives us a good way to  picture our distribution as well.  Unlike our age distribution the income mean and median are a bit off (35,364 and 21,000 respectively). This is something we may need to look into more in a graphical view. We also review a table of the levels of education and the their counts.
 
-```{r, error=TRUE, collapse=TRUE, warning=FALSE}
+```{r, error=TRUE, collapse=TRUE, warning=FALSE, echo=FALSE, results='hide'}
 #Summarizing the ranges of numerical 
 summary(puma_data$Age) #Range of Age
 summary(puma_data$Income) #Range of Age
@@ -222,8 +208,8 @@ table(puma_data$EducationLevel) #Count of each level of education
 
 Next we'll take a look into the income distribution in a graphical view. For this view we will also remove those that are below 0. This allows us to see a very long tailed view of the income distribution for our dataset. Our mean being the tallest point in the graph being around that $21,000 we saw in our exploration.
 
-```{r, error=TRUE, collapse=TRUE, warning=FALSE}
-#Plot inceom distribution
+```{r, error=TRUE, collapse=TRUE, warning=FALSE, echo=FALSE, results='hide'}
+#Plot income distribution
 ggplot(puma_data %>% filter(Income > 0), aes(Income)) +
   geom_histogram(binwidth = 10000) +
   scale_x_continuous(labels = function(x) paste0(x / 1000, "K")) +
@@ -236,6 +222,11 @@ ggplot(puma_data %>% filter(Income > 0), aes(Income)) +
 [Reference on Variables for now](https://usa.ipums.org/usa/resources/codebooks/DataDict1822.pdf)
 
 ## Model the data
+
+
+We compared four regression models, each including different combinations of EducationGroup, Sex, and Age as explanatory variables. After conducting ANOVA comparisons between the full and nested models, there was compelling evidence that the last model, which included a three-way interaction term between EducationGroup, Sex, and Age along with two interaction terms between each variable, was a better fit. However, further examination of the model diagnostics revealed a violation of the linearity assumption. To address this issue, we transformed the response variable using logarithm.
+
+Upon visualizing the model diagnostics, the plot of fitted values versus residuals shows the residuals generally centered around zero, there was a change in clustering pattern around a certain fitted value. Despite this, there was no clear systematic pattern observed in the residuals, suggesting that the assumptions of homoscedasticity and linearity were generally met. In addition, the QQ plot showed some deviation from normality. However, linear regression tends to be robust against such deviations, particularly with large sample sizes. Overall, despite these minor issues, the model still appeared to be a suitable fit for the data, with the assumptions of homoscedasticity, linearity, and normality of residuals reasonably satisfied.
 
 ```{r, message=FALSE, echo=FALSE, results='hide', warning=FALSE}
 #Drop zero income from the data set
@@ -265,9 +256,7 @@ anova(model_2, model_4)
 #Compare model 1 and 4
 anova(model_1, model_4)
 ```
-From four regression models that are considered. There are convincing evidence that the model that include the interaction between education and sex, education and age, sex and age, and 3 ways interaction between education, sex, and age is a better fit. We will use this model to answer the question of interest.
 
-##Check the assumption
 
 ```{r, message=FALSE, echo=FALSE, results='hide', warning=FALSE, fig.show='hide'}
 #Linearity and Homoscedasticity assumption
@@ -283,7 +272,6 @@ plot(residuals(model_4))
 #Fitted vs residuals plot exhibiting pattern
 ```
 
-Consider log transformation of the response variable:
 
 ```{r, message=FALSE, echo=FALSE, results='hide', warning=FALSE}
 #Logged models
@@ -303,7 +291,7 @@ anova(model_5, model_8)
 
 #Model 8 is the best from 4 models
 ```
-```{r, message=FALSE, echo=FALSE, results='hide', warning=FALSE}
+```{r, message=FALSE, echo=FALSE, results='hide', warning=FALSE, fig.show='hide'}
 #Linear regression assumption
 plot(fitted(model_8), residuals(model_8))
 
@@ -311,9 +299,6 @@ plot(fitted(model_8), residuals(model_8))
 qqnorm(residuals(model_8))
 qqline(residuals(model_8))
 ```
-The first plot displays the fitted values versus the residuals from model 8. The observations are clustered around the y = 0 line, indicating that the residuals are distributed relatively evenly above and below zero. The clustering pattern changes around the fitted value of approximately 9.5, where more observations appear. However, there is no obvious systematic pattern in the residuals, suggesting that the assumptions of homoscedasticity and linearity are met.
-
-The QQ plot exhibits some deviation from normality. However, linear regression is known to be relatively robust against deviations from normality, particularly when the sample size is large. Overall, model 8 appears to be a good fit for the data, as the assumptions of homoscedasticity, linearity, and normality of residuals are reasonably met.
 
 ## Interpret the data
 
@@ -329,9 +314,6 @@ mu_1 <- predict(model_8, newdata = new_data_1 , type = "response")
 exp(mu_1)
 ```
 
-It appears that the average income for a 50-year-old male in Oregon varies significantly across different educational categories. Starting with individuals who have no schooling completed, their average income is \$19,927.16, slightly lower than the average income for those with less than a high school education, which stands at \$21,855.60. Surprisingly, individuals with only a high school education (without a diploma) experience a decrease in average income to $14,441.65, suggesting that completing high school does not necessarily lead to improved income prospects for this demographic.
-
-However, there is a notable increase in average income for individuals with a high school diploma or GED, reaching \$26,611.61. From this point onward, it seems that higher levels of education correspond to higher average incomes for this demographic. For instance, individuals with an associate's degree experience a substantial increase in average income to \$37,603.97. Further up the educational ladder, those with a bachelor's degree see a significant jump in average income to \$53,105.31. Pursuing even higher education, individuals with a master's degree experience a further increase in average income to \$74,404.36, while those with a doctorate degree have the highest average income of $87,990.00.
 
 ```{r, message=FALSE, echo=FALSE, results='hide', warning=FALSE}
 #Use predict() to fit the regression and find the average income
@@ -343,15 +325,17 @@ mu_2 <- predict(model_8, newdata = new_data_2 , type = "response")
 exp(mu_2)
 ```
 
-The average income for 50-year-old females in Oregon also exhibits variations across different educational categories. Starting with individuals who have no schooling completed, their average income is \$13,670.589. This increases slightly for those with less than a high school education, reaching \$14,888.971. Surprisingly, individuals with only a high school education (without a diploma) experience a decrease in average income to $9,206.923, similar to the trend observed among males.
+The average income for 50-year-old males in Oregon varies significantly across different educational categories. For individuals with no schooling completed, their average income is \$19,927.16, slightly lower than those with less than a high school education at \$21,855.60. For those with only a high school education (without a diploma) experience a decrease in average income to \$14,441.65. However, individuals with a high school diploma or GED see a notable increase in average income to \$26,611.61, followed by even higher incomes for those with higher degrees.
 
-However, there is a significant increase in average income for females with a high school diploma or GED, rising to \$17,306.203. This trend continues as educational attainment increases. For instance, individuals with an associate's degree experience a substantial increase in average income to \$24,280.252. Further up the educational ladder, those with a bachelor's degree see a significant jump in average income to \$33,974.807.
+For 50-year-old females in Oregon, a similar pattern was observed. For individuals with no schooling completed, their average income is \$13,670.59, slightly increasing for those with less than a high school education to \$14,888.97. Similarly observed in male, those with only a high school education (without a diploma) see a decrease in average income to \$9,206.92. However, there is a significant increase in average income for females with a high school diploma or GED, reaching $17,306.20, and continuing to rise with higher educational attainment.
 
-Despite these initial similarities, males tend to experience higher average incomes compared to females in the higher educational categories. For example, males with a bachelor's, master's, or doctorate degree generally have higher average incomes than their female counterparts with the same level of education.
+There is a clear relationship between educational attainment and average income for both 50-year-old males and females in Oregon. Individuals with higher levels of education tend to have higher average incomes, with notable increases observed at certain educational milestones, such as obtaining a high school diploma or GED and above.
+
+
 
 ## Appendix
 
-```{r echo=FALSE, message=FALSE, warning=FALSE, results='hide'}
+```{r echo=TRUE, message=FALSE, warning=FALSE, results='hide', fig.show='hide'}
 ## An if statement for checking if a package is installed :)
 #if(!require(somepackage)){
 #    install.packages("somepackage")
