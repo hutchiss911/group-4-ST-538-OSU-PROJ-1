@@ -42,9 +42,10 @@ census_api_key("2547c95ce33b1ed0eec3aafd0fd8526a5bb9a22e")
 
 # Introduction
 
-The American Community Survey is an ongoing survey that provides vital information
-on a yearly basis about our nation and it's people. The information from the survey 
-generates data that helps inform how trillions of dollars in federal funds are distributed.
+The American Community Survey offers crucial insights about our country and its citizens 
+each year. The data from this survey plays a pivotal role in guiding the allocation of
+trillions of dollars in federal funding, ensuring that resources are directed where 
+they are needed most.
 
 With the data from the American Community Survey, the Data Wizards have come up 
 with the following 3 questions they would like to answer:
@@ -142,7 +143,7 @@ head(puma_data[puma_data$Age < 14,])
 
 
 ```{r, error=TRUE, collapse=TRUE, warning=FALSE, echo=FALSE, results='hide'}
-#Since we're refactoring the Education levels to groups, commenting this original out.
+#relabelling the education levels
 puma_data <- puma_data %>%
   mutate(
     EducationLevel = case_when(
