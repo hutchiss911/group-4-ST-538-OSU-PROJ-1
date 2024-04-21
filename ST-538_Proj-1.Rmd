@@ -279,6 +279,8 @@ qqline(residuals(model_4))
 
 #Independence assumptions
 plot(residuals(model_4))
+
+#Fitted vs residuals plot exhibiting pattern
 ```
 
 Consider log transformation of the response variable:
@@ -544,6 +546,8 @@ qqline(residuals(model_4))
 
 #Independence assumptions
 plot(residuals(model_4))
+
+#Fitted vs residuals plot exhibiting pattern
 
 #Consider log transformation of the response variable:
 #Logged models
