@@ -62,7 +62,7 @@ In the case of the ACS dataset, we'll pull it via an API. We've already declared
 
 ```{r echo=FALSE, message=FALSE, results='hide'}
 #Pull data set for specific variables
-puma_data <- get_pums(variables = c("AGEP","SCHL","PINCP", "SEX")
+puma_data <- get_pums(variables = c("AGEP","SCHL","PINCP", "SEX", "RAC1P", "TEN")
                       ,state = "OR"
                       ,year = 2022)
 ```
@@ -77,8 +77,10 @@ puma_data <- puma_data %>% rename(Age = AGEP,
                                   EducationLevel = SCHL,
                                   Income = PINCP,
                                   Sex = SEX,
-                                  PersonNumber = SPORDER)
-head(puma_data[, 2:5])
+                                  PersonNumber = SPORDER,
+                                  Race = RAC1P,
+                                  Homeownership = TEN)
+head(puma_data[, 2:8])
 ```
 
 
@@ -104,6 +106,16 @@ puma_data <- puma_data %>%
 
 #Make sure it is numeric
 class(puma_data$EducationLevel)
+
+#Convert homeownership
+puma_data <- puma_data %>%
+  mutate(
+    Homeownership = case_when(
+      Homeownership == "b" ~ "0",
+      TRUE ~ Homeownership
+    ),
+    Homeownership = as.numeric(Homeownership)
+  )
 ```
 
 
@@ -128,7 +140,7 @@ puma_data[1:50,]
 ```{r, error=TRUE, collapse=TRUE, warning=FALSE, echo=FALSE, results='hide'}
 #Rearange the columns
 puma_data <- puma_data %>%
-  select(EducationGroup, EducationLevel, Income, Age, Sex, PersonNumber)
+  select(EducationGroup, EducationLevel, Income, Age, Sex, Race, Homeownership, PersonNumber)
 head(puma_data)
 ```
 
@@ -143,36 +155,32 @@ head(puma_data[puma_data$Age < 14,])
 
 
 ```{r, error=TRUE, collapse=TRUE, warning=FALSE, echo=FALSE, results='hide'}
-#relabelling the education levels
+#relabelling race
 puma_data <- puma_data %>%
   mutate(
-    EducationLevel = case_when(
-      EducationLevel == 0 ~ "(less than 3 years old)",
-      EducationLevel == 1 ~ "No schooling completed",
-      EducationLevel == 2 ~ "Nursery School / Preschool",
-      EducationLevel == 3 ~ "Kindergarten",
-      EducationLevel == 4 ~ "Grade 1",
-      EducationLevel == 5 ~ "Grade 2",
-      EducationLevel == 6 ~ "Grade 3",
-      EducationLevel == 7 ~ "Grade 4",
-      EducationLevel == 8 ~ "Grade 5",
-      EducationLevel == 9 ~ "Grade 6",
-      EducationLevel == 10 ~ "Grade 7",
-      EducationLevel == 11 ~ "Grade 8",
-      EducationLevel == 12 ~ "Grade 9",
-      EducationLevel == 13 ~ "Grade 10",
-      EducationLevel == 14 ~ "Grade 11",
-      EducationLevel == 15 ~ "Grade 12 - no diploma",
-      EducationLevel == 16 ~ "Regular high school diploma",
-      EducationLevel == 17 ~ "GED or alternative credential",
-      EducationLevel == 18 ~ "Some college, but less than 1 year",
-      EducationLevel == 19 ~ "1 or more years of college credit, no degree",
-      EducationLevel == 20 ~ "Associates Degree",
-      EducationLevel == 21 ~ "Bachelors Degree",
-      EducationLevel == 22 ~ "Masters Degree",
-      EducationLevel == 23 ~ "Professional Degree beyond a Bachelors Degree",
-      EducationLevel == 24 ~ "Doctorate Degree",
-      TRUE ~ as.character(EducationLevel)
+    Race = case_when(
+      Race == 1 ~ "White alone",
+      Race == 2 ~ "Black or African American alone",
+      Race == 3 ~ "American Indian alone",
+      Race == 4 ~ "Alaska Native alone",
+      Race == 5 ~ "Native American Not Specified",
+      Race == 6 ~ "Asian alone",
+      Race == 7 ~ "Native Hawaiian and Other Pacific Islander alone",
+      Race == 8 ~ "Some Other Race alone",
+      Race == 9 ~ "Two or More Races",
+      TRUE ~ as.character(Race)
+    )
+)
+#relabelling tenure
+puma_data <- puma_data %>%
+  mutate(
+    Homeownership = case_when(
+      Homeownership == 0 ~ "N/A",
+      Homeownership == 1 ~ "Owned with mortgage or loan",
+      Homeownership == 2 ~ "Owned free and clear",
+      Homeownership == 3 ~ "Rented",
+      Homeownership == 4 ~ "Occupied without payment of rent",
+      TRUE ~ as.character(Homeownership)
     )
 )
 puma_data[1:100,]
@@ -199,12 +207,16 @@ With the data mostly cleaned up, we can now explore the data.
 
 We want to get a sense for the data that we'll be working with so first we'll find the range of ages that we have in our dataset. This shows that our mean and median age is very close together (43.1 and 43 respectively) showing a good distribution of ages; with a max age of 95. Education level has a similar mean and median (16.31, and 18 respectively), and it gives us a good way to  picture our distribution as well.  Unlike our age distribution the income mean and median are a bit off (35,364 and 21,000 respectively). This is something we may need to look into more in a graphical view. We also review a table of the levels of education and the their counts.
 
+For Homeownership the the distribution is very interesting with 68% of the sample owning a home either free and clear or though a mortgage. Renters make up a quarter of the sample and the rest may be cleaned up in later sections of the report. As for race 82% of this sample are White alone. The next three largest categories are Two Or More Races, Asian alone, and Some other race alone. This will make for some more difficult predictions.
+
 ```{r, error=TRUE, collapse=TRUE, warning=FALSE, echo=FALSE, results='hide'}
 #Summarizing the ranges of numerical 
 summary(puma_data$Age) #Range of Age
 summary(puma_data$Income) #Range of Age
-summary(puma_data$EducationNumber) #Range of Education
-table(puma_data$EducationLevel) #Count of each level of education
+summary(puma_data$EducationLevel) #Range of Education
+table(puma_data$EducationGroup) #Count of each level of education
+table(puma_data$Race) #Count of each race
+table(puma_data$Homeownership) #Count of each Homeownership
 ```
 
 Next we'll take a look into the income distribution in a graphical view. For this view we will also remove those that are below 0. This allows us to see a very long tailed view of the income distribution for our dataset. Our mean being the tallest point in the graph being around that $21,000 we saw in our exploration.
@@ -370,7 +382,7 @@ census_api_key("2547c95ce33b1ed0eec3aafd0fd8526a5bb9a22e")
 ### Obtain the Data
 
 #Pull data set for specific variables
-puma_data <- get_pums(variables = c("AGEP","SCHL","PINCP", "SEX")
+puma_data <- get_pums(variables = c("AGEP","SCHL","PINCP", "SEX", "RAC1P", "TEN")
                       ,state = "OR"
                       ,year = 2022)
 
@@ -422,40 +434,6 @@ head(puma_data)
 puma_data <- puma_data %>%
   filter(Age >= 14)
 head(puma_data[puma_data$Age < 14,])
-
-#Since we're refactoring the Education levels to groups, commenting this original out.
-puma_data <- puma_data %>%
-  mutate(
-    EducationLevel = case_when(
-      EducationLevel == 0 ~ "(less than 3 years old)",
-      EducationLevel == 1 ~ "No schooling completed",
-      EducationLevel == 2 ~ "Nursery School / Preschool",
-      EducationLevel == 3 ~ "Kindergarten",
-      EducationLevel == 4 ~ "Grade 1",
-      EducationLevel == 5 ~ "Grade 2",
-      EducationLevel == 6 ~ "Grade 3",
-      EducationLevel == 7 ~ "Grade 4",
-      EducationLevel == 8 ~ "Grade 5",
-      EducationLevel == 9 ~ "Grade 6",
-      EducationLevel == 10 ~ "Grade 7",
-      EducationLevel == 11 ~ "Grade 8",
-      EducationLevel == 12 ~ "Grade 9",
-      EducationLevel == 13 ~ "Grade 10",
-      EducationLevel == 14 ~ "Grade 11",
-      EducationLevel == 15 ~ "Grade 12 - no diploma",
-      EducationLevel == 16 ~ "Regular high school diploma",
-      EducationLevel == 17 ~ "GED or alternative credential",
-      EducationLevel == 18 ~ "Some college, but less than 1 year",
-      EducationLevel == 19 ~ "1 or more years of college credit, no degree",
-      EducationLevel == 20 ~ "Associates Degree",
-      EducationLevel == 21 ~ "Bachelors Degree",
-      EducationLevel == 22 ~ "Masters Degree",
-      EducationLevel == 23 ~ "Professional Degree beyond a Bachelors Degree",
-      EducationLevel == 24 ~ "Doctorate Degree",
-      TRUE ~ as.character(EducationLevel)
-    )
-)
-puma_data[1:100,]
 
 #Identify gender
 puma_data <- puma_data %>%
