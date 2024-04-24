@@ -310,7 +310,8 @@ anova(model_1, model_4)
 ```
 
 
-```{r, message=FALSE, echo=FALSE, results='hide', warning=FALSE, fig.show='hide'}
+
+```{r, message=FALSE, echo=FALSE, results='hide', warning=FALSE}
 #Linearity and Homoscedasticity assumption
 plot(fitted(model_4), residuals(model_4))
 
@@ -343,7 +344,7 @@ anova(model_5, model_8)
 
 #Model 8 is the best from 4 models
 ```
-```{r, message=FALSE, echo=FALSE, results='hide', warning=FALSE, fig.show='hide'}
+```{r, message=FALSE, echo=FALSE, results='hide', warning=FALSE}
 #Linear regression assumption
 plot(fitted(model_8), residuals(model_8))
 
