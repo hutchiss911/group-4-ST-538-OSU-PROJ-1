@@ -62,7 +62,7 @@ In the case of the ACS dataset, we'll pull it via an API. We've already declared
 
 ```{r echo=FALSE, message=FALSE, results='hide'}
 #Pull data set for specific variables
-puma_data <- get_pums(variables = c("AGEP","SCHL","PINCP", "SEX", "RAC1P", "TEN")
+puma_data <- get_pums(variables = c("AGEP","SCHL","PINCP", "SEX", "RAC1P", "TEN", "OCCP")
                       ,state = "OR"
                       ,year = 2022)
 ```
@@ -70,6 +70,8 @@ puma_data <- get_pums(variables = c("AGEP","SCHL","PINCP", "SEX", "RAC1P", "TEN"
 ## Scrub the data
 
 In the data cleaning process, we began by assigning more descriptive column names to enhance clarity. Columns such as "ST", "Serial Number", and "housing weight" were removed as they were deemed unnecessary for our analysis, while "PersonNumber" was retained for potential future use. Subsequently, we converted instances of "bb" in the Education level column to 0, followed by transforming the Education level into numeric values. Groupings were then created based on education levels, ranging from "No Education" to "Doctoral Degree". The column order was rearranged for better organization. As our focus is on income, individuals under the age of 14 were excluded from the dataset, aligning with Oregon's legal working age. Variable codes were converted to their corresponding descriptions, starting with Education Level. Lastly, we identified the genders present in the dataset to facilitate further analysis. This systematic approach ensures that the data is cleaned and structured appropriately for subsequent analysis.
+
+### First Question
 
 ```{r, error=TRUE, collapse=TRUE, warning=FALSE, echo=FALSE, results='hide'}
 #Rename the columns
@@ -79,11 +81,10 @@ puma_data <- puma_data %>% rename(Age = AGEP,
                                   Sex = SEX,
                                   PersonNumber = SPORDER,
                                   Race = RAC1P,
-                                  Homeownership = TEN)
+                                  Homeownership = TEN,
+                                  Occupation = OCCP)
 head(puma_data[, 2:8])
 ```
-
-
 
 ```{r, error=TRUE, collapse=TRUE, warning=FALSE, echo=FALSE, results='hide'}
 #Remove columns that are not needed
@@ -91,7 +92,6 @@ puma_data <- puma_data %>%
   select(-ST, -SERIALNO, -WGTP, -PWGTP)
 head(puma_data)
 ```
-
 
 ```{r, message=FALSE, echo=FALSE, results='hide'}
 #Convert education levels
@@ -102,6 +102,18 @@ puma_data <- puma_data %>%
       TRUE ~ EducationLevel
     ),
     EducationLevel = as.numeric(EducationLevel)
+  )
+
+#Convert Occupation to numerical
+
+puma_data <- puma_data %>%
+  mutate(
+    Occupation = case_when(
+      Occupation == "bbbb" ~ "0000",
+      Occupation == "000N" ~ "0000",
+      TRUE ~ Occupation
+    ),
+    Occupation = as.numeric(Occupation)
   )
 
 #Make sure it is numeric
@@ -118,8 +130,6 @@ puma_data <- puma_data %>%
   )
 ```
 
-
-
 ```{r, message=FALSE, echo=FALSE, results='hide', warning=FALSE}
 ##Group education level
 puma_data <- puma_data %>%
@@ -135,15 +145,12 @@ unique(puma_data$EducationGroup)
 puma_data[1:50,]
 ```
 
-
-
 ```{r, error=TRUE, collapse=TRUE, warning=FALSE, echo=FALSE, results='hide'}
 #Rearange the columns
 puma_data <- puma_data %>%
-  select(EducationGroup, EducationLevel, Income, Age, Sex, Race, Homeownership, PersonNumber)
+  select(EducationGroup, EducationLevel, Income, Occupation, Age, Sex, Race, Homeownership, PersonNumber)
 head(puma_data)
 ```
-
 
 ```{r, message=FALSE, echo=FALSE, results='hide', warning=FALSE}
 #Drop age below 14
@@ -151,8 +158,6 @@ puma_data <- puma_data %>%
   filter(Age >= 14)
 head(puma_data[puma_data$Age < 14,])
 ```
-
-
 
 ```{r, error=TRUE, collapse=TRUE, warning=FALSE, echo=FALSE, results='hide'}
 #relabelling race
@@ -186,8 +191,6 @@ puma_data <- puma_data %>%
 puma_data[1:100,]
 ```
 
-
-
 ```{r, error=TRUE, collapse=TRUE, warning=FALSE, echo=FALSE, results='hide'}
 #Identify gender
 puma_data <- puma_data %>%
@@ -200,6 +203,42 @@ puma_data <- puma_data %>%
 )
 head(puma_data)
 ```
+
+```{r}
+#Occupation Grouping
+puma_data <- puma_data %>%
+  mutate(
+    OccupationGroup = case_when(
+      between(as.numeric(Occupation), 0000, 0009) ~ "Less than 16 years old",
+      between(as.numeric(Occupation), 0010, 0440) ~ "Management",
+      between(as.numeric(Occupation), 0500, 0960) ~ "Business/Finance",
+      between(as.numeric(Occupation), 1000, 1240) ~ "CS/Math/Statistics",
+      between(as.numeric(Occupation), 1300, 1560) ~ "Engineering/Architecture",
+      between(as.numeric(Occupation), 1600, 1980) ~ "Science/Economics",
+      between(as.numeric(Occupation), 2000, 2060) ~ "Social/Therapy/Religious",
+      between(as.numeric(Occupation), 2100, 2180) ~ "Legal",
+      between(as.numeric(Occupation), 2200, 2555) ~ "Education/Library",
+      between(as.numeric(Occupation), 2600, 2920) ~ "Entertainment/Arts/Media/Sports",
+      between(as.numeric(Occupation), 3000, 3550) ~ "Medical",
+      between(as.numeric(Occupation), 3600, 3655) ~ "Health",
+      between(as.numeric(Occupation), 3700, 3960) ~ "Protective/Essential",
+      between(as.numeric(Occupation), 4000, 4160) ~ "Food",
+      between(as.numeric(Occupation), 4200, 4255) ~ "Sanitation/Groundskeeping",
+      between(as.numeric(Occupation), 4300, 4655) ~ "Personal/Lifestyle",
+      between(as.numeric(Occupation), 4700, 4965) ~ "Sales",
+      between(as.numeric(Occupation), 5000, 5940) ~ "Office/Administrative",
+      between(as.numeric(Occupation), 6005, 6130) ~ "Farming/Fishing/Forestry",
+      between(as.numeric(Occupation), 6200, 6765) ~ "Construction",
+      between(as.numeric(Occupation), 6800, 6950) ~ "BlueCollar",
+      between(as.numeric(Occupation), 7000, 7640) ~ "Repairs/Mechanics",
+      between(as.numeric(Occupation), 7700, 8990) ~ "Manufacturing",
+      between(as.numeric(Occupation), 9005, 9760) ~ "Transportation",
+      between(as.numeric(Occupation), 9800, 9830) ~ "Military",
+      TRUE ~ "Not Classified"
+    )
+  )
+```
+
 
 With the data mostly cleaned up, we can now explore the data.
 
