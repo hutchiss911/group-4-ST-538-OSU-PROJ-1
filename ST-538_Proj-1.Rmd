@@ -368,6 +368,7 @@ exp(mu_1)
 ```
 
 
+
 ```{r, message=FALSE, echo=FALSE, results='hide', warning=FALSE}
 #Use predict() to fit the regression and find the average income
 new_data_2 <- data.frame(EducationGroup = c("No schooling completed","Less than High School", "High School", "high school diploma or GED","Associates Degree", "Bachelors Degree", "Masters Degree", "Doctorate Degree"),
@@ -383,6 +384,21 @@ The average income for 50-year-old males in Oregon varies significantly across d
 For 50-year-old females in Oregon, a similar pattern was observed. For individuals with no schooling completed, their average income is \$13,670.59, slightly increasing for those with less than a high school education to \$14,888.97. Similarly observed in male, those with only a high school education (without a diploma) see a decrease in average income to \$9,206.92. However, there is a significant increase in average income for females with a high school diploma or GED, reaching $17,306.20, and continuing to rise with higher educational attainment.
 
 There is a clear relationship between educational attainment and average income for both 50-year-old males and females in Oregon. Individuals with higher levels of education tend to have higher average incomes, with notable increases observed at certain educational milestones, such as obtaining a high school diploma or GED and above.
+
+
+### Second Question
+
+```{r}
+# Can we predict household income based on education, occupation, and race/ethnicity?
+head(puma_data)
+```
+
+```{r}
+
+puma_data_q2 <- puma_data |>
+  select(EducationGroup, Income, Race, OccupationGroup)
+head(puma_data_q2)
+```
 
 
 
