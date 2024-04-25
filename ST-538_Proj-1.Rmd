@@ -279,9 +279,10 @@ summary(puma_data$EducationLevel) #Range of Education
 table(puma_data$EducationGroup) #Count of each level of education
 table(puma_data$Race) #Count of each race
 table(puma_data$Homeownership) #Count of each Homeownership
+table(puma_data$OccupationGroup) #Count of each Occupationgroup
 ```
 
-Next we'll take a look into the income distribution in a graphical view. For this view we will also remove those that are below 0. This allows us to see a very long tailed view of the income distribution for our dataset. Our mean being the tallest point in the graph being around that $21,000 we saw in our exploration.
+Next we'll take a look into the income distribution in a graphical view. For this view we will also remove those that are below 0. This allows us to see a very long tailed view of the income distribution for our dataset. Our mean being the tallest point in the graph being around that $21,000 we saw in our exploration. Related to this is the variable occupation groups. These are a little difficult to decipher because there are three categories that are very general that take up 31% of the total working population and those are Management, Office/Admin and Sales. These are broad groups, but hopefully with the other categories and variables we will be able to create a model that will effectively utilize these occupation groups.
 
 ```{r, error=TRUE, collapse=TRUE, warning=FALSE, echo=FALSE, results='hide'}
 #Plot income distribution
