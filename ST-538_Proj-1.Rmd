@@ -71,8 +71,6 @@ puma_data <- get_pums(variables = c("AGEP","SCHL","PINCP", "SEX", "RAC1P", "TEN"
 
 In the data cleaning process, we began by assigning more descriptive column names to enhance clarity. Columns such as "ST", "Serial Number", and "housing weight" were removed as they were deemed unnecessary for our analysis, while "PersonNumber" was retained for potential future use. Subsequently, we converted instances of "bb" in the Education level column to 0, followed by transforming the Education level into numeric values. Groupings were then created based on education levels, ranging from "No Education" to "Doctoral Degree". The column order was rearranged for better organization. As our focus is on income, individuals under the age of 14 were excluded from the dataset, aligning with Oregon's legal working age. Variable codes were converted to their corresponding descriptions, starting with Education Level. Lastly, we identified the genders present in the dataset to facilitate further analysis. This systematic approach ensures that the data is cleaned and structured appropriately for subsequent analysis.
 
-### First Question
-
 ```{r, error=TRUE, collapse=TRUE, warning=FALSE, echo=FALSE, results='hide'}
 #Rename the columns
 puma_data <- puma_data %>% rename(Age = AGEP,
@@ -82,7 +80,8 @@ puma_data <- puma_data %>% rename(Age = AGEP,
                                   PersonNumber = SPORDER,
                                   Race = RAC1P,
                                   Homeownership = TEN,
-                                  Occupation = OCCP)
+                                  Occupation = OCCP
+                                  )
 head(puma_data[, 2:8])
 ```
 
@@ -104,8 +103,12 @@ puma_data <- puma_data %>%
     EducationLevel = as.numeric(EducationLevel)
   )
 
-#Convert Occupation to numerical
+#Make sure it is numeric
+class(puma_data$EducationLevel)
+```
 
+```{r, message=FALSE, echo=FALSE, results='hide'}
+#Convert Occupation to numerical
 puma_data <- puma_data %>%
   mutate(
     Occupation = case_when(
@@ -117,8 +120,10 @@ puma_data <- puma_data %>%
   )
 
 #Make sure it is numeric
-class(puma_data$EducationLevel)
+class(puma_data$Occupation)
+```
 
+```{r, message=FALSE, echo=FALSE, results='hide'}
 #Convert homeownership
 puma_data <- puma_data %>%
   mutate(
@@ -128,7 +133,11 @@ puma_data <- puma_data %>%
     ),
     Homeownership = as.numeric(Homeownership)
   )
+
+#Make sure it is numeric
+class(puma_data$Homeownership)
 ```
+
 
 ```{r, message=FALSE, echo=FALSE, results='hide', warning=FALSE}
 ##Group education level
@@ -145,13 +154,6 @@ unique(puma_data$EducationGroup)
 puma_data[1:50,]
 ```
 
-```{r, error=TRUE, collapse=TRUE, warning=FALSE, echo=FALSE, results='hide'}
-#Rearange the columns
-puma_data <- puma_data %>%
-  select(EducationGroup, EducationLevel, Income, Occupation, Age, Sex, Race, Homeownership, PersonNumber)
-head(puma_data)
-```
-
 ```{r, message=FALSE, echo=FALSE, results='hide', warning=FALSE}
 #Drop age below 14
 puma_data <- puma_data %>%
@@ -160,23 +162,27 @@ head(puma_data[puma_data$Age < 14,])
 ```
 
 ```{r, error=TRUE, collapse=TRUE, warning=FALSE, echo=FALSE, results='hide'}
-#relabelling race
+#relabeling race
 puma_data <- puma_data %>%
   mutate(
     Race = case_when(
-      Race == 1 ~ "White alone",
-      Race == 2 ~ "Black or African American alone",
-      Race == 3 ~ "American Indian alone",
-      Race == 4 ~ "Alaska Native alone",
-      Race == 5 ~ "Native American Not Specified",
-      Race == 6 ~ "Asian alone",
-      Race == 7 ~ "Native Hawaiian and Other Pacific Islander alone",
-      Race == 8 ~ "Some Other Race alone",
-      Race == 9 ~ "Two or More Races",
+      Race == "1" ~ "White",
+      Race == "2" ~ "Black or African American",
+      Race == "3" ~ "American Indian",
+      Race == "4" ~ "Alaska Native",
+      Race == "5" ~ "Native American Not Specified",
+      Race == "6" ~ "Asian",
+      Race == "7" ~ "Native Hawaiian or Other Pacific Islander",
+      Race == "8" ~ "Other Race",
+      Race == "9" ~ "Two or More Races",
       TRUE ~ as.character(Race)
     )
 )
-#relabelling tenure
+puma_data$Race[1:100]
+```
+
+```{r}
+#relabeling tenure
 puma_data <- puma_data %>%
   mutate(
     Homeownership = case_when(
@@ -188,8 +194,12 @@ puma_data <- puma_data %>%
       TRUE ~ as.character(Homeownership)
     )
 )
-puma_data[1:100,]
+
+#Checking labels are assigned properly.
+unique(puma_data$Homeownership)
+puma_data$Homeownership[11200:11300]
 ```
+
 
 ```{r, error=TRUE, collapse=TRUE, warning=FALSE, echo=FALSE, results='hide'}
 #Identify gender
@@ -201,7 +211,10 @@ puma_data <- puma_data %>%
       TRUE ~ as.character(Sex)
     )
 )
-head(puma_data)
+
+#Checking labels are assigned properly.
+unique(puma_data$Sex)
+head(puma_data$Sex)
 ```
 
 ```{r}
@@ -237,8 +250,18 @@ puma_data <- puma_data %>%
       TRUE ~ "Not Classified"
     )
   )
+
+#Checking labels are assigned properly.
+unique(puma_data$OccupationGroup)
+head(puma_data$OccupationGroup)
 ```
 
+```{r, error=TRUE, collapse=TRUE, warning=FALSE, echo=FALSE, results='hide'}
+#Rearrange the columns
+puma_data <- puma_data %>%
+  select(EducationGroup, EducationLevel, OccupationGroup, Occupation, Income, Age, Sex, Race, Homeownership, PersonNumber)
+head(puma_data)
+```
 
 With the data mostly cleaned up, we can now explore the data.
 
