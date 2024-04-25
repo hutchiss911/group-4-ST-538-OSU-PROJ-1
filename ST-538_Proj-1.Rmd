@@ -5,7 +5,7 @@ author:
 - Mai Castellano
 - Tyler Kussee
 - Spencer Hutchison
-output: pdf_document
+output: html_document
 ---
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, results='hide'}
