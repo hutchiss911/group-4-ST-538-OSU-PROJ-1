@@ -62,7 +62,7 @@ In the case of the ACS dataset, we'll pull it via an API. We've already declared
 
 ```{r echo=FALSE, message=FALSE, results='hide'}
 #Pull data set for specific variables
-puma_data <- get_pums(variables = c("AGEP","SCHL","PINCP", "SEX", "RAC1P", "TEN", "OCCP")
+puma_data <- get_pums(variables = c("AGEP","SCHL","PINCP", "SEX", "RAC1P", "TEN", "OCCP", "MAR", "ACR")
                       ,state = "OR"
                       ,year = 2022)
 ```
@@ -84,7 +84,9 @@ puma_data <- puma_data %>% rename(Age = AGEP,
                                   PersonNumber = SPORDER,
                                   Race = RAC1P,
                                   Homeownership = TEN,
-                                  Occupation = OCCP
+                                  Occupation = OCCP,
+                                  MaritalStatus = MAR,
+                                  HouseAcreage = ACR
                                   )
 head(puma_data[, 2:8])
 ```
@@ -142,6 +144,20 @@ puma_data <- puma_data %>%
 class(puma_data$Homeownership)
 ```
 
+```{r}
+#Convert HouseAcreage
+puma_data <- puma_data %>%
+  mutate(
+    HouseAcreage = case_when(
+      HouseAcreage == "b" ~ "0",
+      TRUE ~ HouseAcreage
+    ),
+    HouseAcreage = as.numeric(HouseAcreage)
+  )
+
+#Make sure it is numeric
+class(puma_data$HouseAcreage)
+```
 
 ```{r, message=FALSE, echo=FALSE, results='hide', warning=FALSE}
 ##Group education level
@@ -183,6 +199,43 @@ puma_data <- puma_data %>%
     )
 )
 puma_data$Race[1:100]
+```
+
+```{r}
+#relabeling MaritalStatus
+puma_data <- puma_data %>%
+  mutate(
+    MaritalStatus = case_when(
+      MaritalStatus == "1" ~ "Married",
+      MaritalStatus == "2" ~ "Widowed",
+      MaritalStatus == "3" ~ "Divorced",
+      MaritalStatus == "4" ~ "Separated",
+      MaritalStatus == "5" ~ "Not Married/Under 15",
+      TRUE ~ as.character(MaritalStatus)
+    )
+)
+
+#Checking labels are assigned.
+unique(puma_data$MaritalStatus)
+puma_data$MaritalStatus[11200:11300]
+```
+
+```{r}
+#relabeling Acreage
+puma_data <- puma_data %>%
+  mutate(
+    HouseAcreage = case_when(
+      HouseAcreage == 0 ~ "Not a one-family home",
+      HouseAcreage == 1 ~ "< 1 Acre",
+      HouseAcreage == 2 ~ "1 - 10 Acres",
+      HouseAcreage == 3 ~ "> 10 Acres",
+      TRUE ~ as.character(HouseAcreage)
+    )
+)
+
+#Checking labels are assigned.
+unique(puma_data$HouseAcreage)
+puma_data$HouseAcreage[1200:1300]
 ```
 
 ```{r, error=TRUE, collapse=TRUE, warning=FALSE, echo=FALSE, results='hide'}
