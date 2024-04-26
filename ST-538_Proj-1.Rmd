@@ -427,6 +427,33 @@ puma_data_q2 <- puma_data |>
   select(EducationGroup, Income, Race, OccupationGroup)
 head(puma_data_q2)
 ```
+```{r}
+summary(puma_data_q2)
+```
+```{r}
+puma_data_q2_race_income <- puma_data_q2 |>
+  group_by(Race, Income) |>
+  summarise(n = n())
+
+ggplot(puma_data_q2_race_income, aes(x = Income)) +
+  geom_histogram(binwidth = 5000, fill = "skyblue", color = "black") +
+  facet_wrap(~Race) +
+  labs(title = "Distribution of Income by Race", x = "Income", y = "Frequency")
+```
+```{r}
+puma_data_q2_occ_income <- puma_data_q2 |>
+  group_by(OccupationGroup, Income) |>
+  summarise(n = n())
+
+ggplot(puma_data_q2_occ_income, aes(x = Income)) +
+  geom_histogram(binwidth = 5000, fill = "skyblue", color = "black") +
+  facet_wrap(~OccupationGroup) +
+  labs(title = "Distribution of Income by Occupation Group and Race", x = "Income", y = "Frequency")
+
+```
+
+### Third Question
+# Is there a relationship between race/ethnicity and home ownership?
 
 
 
