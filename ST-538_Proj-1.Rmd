@@ -27,6 +27,25 @@ if (!require(dplyr)) {
 if (!require(ggplot2)) {
   install.packages("ggplot2")
 }
+if (!require(faraway)) {
+  install.packages("faraway")
+}
+if (!require(car)) {
+  install.packages("car")
+}
+if (!require(gridExtra)) {
+  install.packages("gridExtra")
+}
+if (!require(glmnet)) {
+  install.packages("glmnet")
+}
+if (!require(ISLR2)) {
+  install.packages("ISLR2")
+}
+if (!require(leaps)) {
+  install.packages("leaps")
+}
+
 ```
 
 
@@ -246,7 +265,7 @@ puma_data <- puma_data %>%
 
 #Checking labels are assigned.
 unique(puma_data$HouseAcreage)
-puma_data$HouseAcreage[1200:1300]
+puma_data$HouseAcreage[1500:1600]
 ```
 
 ```{r, error=TRUE, collapse=TRUE, warning=FALSE, echo=FALSE, results='hide'}
@@ -288,32 +307,13 @@ head(puma_data$Sex)
 ```{r, error=TRUE, collapse=TRUE, warning=FALSE, echo=FALSE, results='hide'}
 #Occupation Grouping
 puma_data <- puma_data %>%
+  filter(as.numeric(Occupation) >= 0010 & as.numeric(Occupation) < 9920) %>%
   mutate(
     OccupationGroup = case_when(
-      between(as.numeric(Occupation), 0000, 0009) ~ "Less than 16 years old",
-      between(as.numeric(Occupation), 0010, 0440) ~ "Management",
-      between(as.numeric(Occupation), 0500, 0960) ~ "Business/Finance",
-      between(as.numeric(Occupation), 1000, 1240) ~ "CS/Math/Statistics",
-      between(as.numeric(Occupation), 1300, 1560) ~ "Engineering/Architecture",
-      between(as.numeric(Occupation), 1600, 1980) ~ "Science/Economics",
-      between(as.numeric(Occupation), 2000, 2060) ~ "Social/Therapy/Religious",
-      between(as.numeric(Occupation), 2100, 2180) ~ "Legal",
-      between(as.numeric(Occupation), 2200, 2555) ~ "Education/Library",
-      between(as.numeric(Occupation), 2600, 2920) ~ "Entertainment/Arts/Media/Sports",
-      between(as.numeric(Occupation), 3000, 3550) ~ "Medical",
-      between(as.numeric(Occupation), 3600, 3655) ~ "Health",
-      between(as.numeric(Occupation), 3700, 3960) ~ "Protective/Essential",
-      between(as.numeric(Occupation), 4000, 4160) ~ "Food",
-      between(as.numeric(Occupation), 4200, 4255) ~ "Sanitation/Groundskeeping",
-      between(as.numeric(Occupation), 4300, 4655) ~ "Personal/Lifestyle",
-      between(as.numeric(Occupation), 4700, 4965) ~ "Sales",
-      between(as.numeric(Occupation), 5000, 5940) ~ "Office/Administrative",
-      between(as.numeric(Occupation), 6005, 6130) ~ "Farming/Fishing/Forestry",
-      between(as.numeric(Occupation), 6200, 6765) ~ "Construction",
-      between(as.numeric(Occupation), 6800, 6950) ~ "BlueCollar",
-      between(as.numeric(Occupation), 7000, 7640) ~ "Repairs/Mechanics",
-      between(as.numeric(Occupation), 7700, 8990) ~ "Manufacturing",
-      between(as.numeric(Occupation), 9005, 9760) ~ "Transportation",
+      between(as.numeric(Occupation), 0010, 3550) ~ "Professional/Technical",
+      between(as.numeric(Occupation), 3600, 4160) ~ "Healthcare/FoodServices",
+      between(as.numeric(Occupation), 4200, 7640) ~ "WhiteCollar/BlueCollar",
+      between(as.numeric(Occupation), 7700, 9760) ~ "Manufacturing/Transportation",
       between(as.numeric(Occupation), 9800, 9830) ~ "Military",
       TRUE ~ "Not Classified"
     )
@@ -321,7 +321,8 @@ puma_data <- puma_data %>%
 
 #Checking labels are assigned.
 unique(puma_data$OccupationGroup)
-head(puma_data$OccupationGroup)
+puma_data$OccupationGroup[2020:2120]
+puma_data$Occupation[puma_data$OccupationGroup == "Not Classified"]
 ```
 
 ```{r, error=TRUE, collapse=TRUE, warning=FALSE, echo=FALSE, results='hide'}
