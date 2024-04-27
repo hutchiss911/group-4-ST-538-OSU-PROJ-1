@@ -651,97 +651,10 @@ ggplot(puma_data_q3, aes(x = Race, fill = factor(Occupation))) +
 
 
 ```
-```{r}
-model_1_q3 <- lm(Occupation ~ as.factor(MaritalStatus) + as.factor(OccupationGroup) 
-      + as.factor(Homeownership) + as.factor(Race) + Income, data = puma_data_q3)
-
-
-
-```
-
-```{r}
-summary(model_1_q3)
-```
-
-```{r}
-model_2_q3 <- lm(Occupation ~ as.factor(MaritalStatus) + as.factor(OccupationGroup) 
-      + as.factor(Homeownership) + Income, data = puma_data_q3)
-```
-
-```{r}
-summary(model_2_q3)
-```
-```{r}
-#Compare models 1 and model 2
-anova(model_1_q3, model_2_q3)
-```
-Answer:
-From the result, we can see that Model 1 has a lower residual sum of squares 
-(RSS) compared to Model 2, indicating that it fits the data better.
-The F-statistic for the comparison between Model 1 and Model 2 is 5.4446, with 
-a very low p-value (6.915e-07), indicating that the additional predictors in 
-Model 1 significantly improve the fit of the model.
-Based on this information, we can conclude that Model 1 performs better than Model 2. 
-The additional predictors in Model 1 (Race) significantly improve the model's 
-ability to explain the variation in the occupation variable compared to Model 2.
-
 
 ```{r}
 
-plot(fitted(model_1_q3), residuals(model_1_q3))
-
-
-qqnorm(residuals(model_1_q3))
-qqline(residuals(model_1_q3))
-
-
-plot(residuals(model_1_q3))
-
-#Fitted vs residuals plot exhibiting pattern
 ```
-
-
-```{r}
-model_3_q3 <- lm(Occupation ~ as.factor(MaritalStatus) * as.factor(OccupationGroup) 
-      + as.factor(Homeownership) + as.factor(Race) + Income, data = puma_data_q3)
-
-```
-
-```{r}
-model_4_q3 <- lm(Occupation ~ as.factor(MaritalStatus) + as.factor(OccupationGroup) 
-      * as.factor(Homeownership) + as.factor(Race) + Income, data = puma_data_q3)
-```
-
-```{r}
-summary(model_3_q3)
-```
-
-```{r}
-summary(model_4_q3)
-```
-```{r}
-anova(model_3_q3, model_4_q3)
-```
-Model 3 has a lower residual sum of squares (RSS) compared to Model 4, indicating 
-a better fit to the data.
-Since Model 1 has a lower RSS with the same degrees of freedom as Model 2, we can 
-conclude that Model 3 performs better in terms of model fit.
-Therefore, based on the information provided, Model 3 is better than Model 4.
-
-```{r}
-plot(fitted(model_3_q3), residuals(model_3_q3))
-
-
-qqnorm(residuals(model_3_q3))
-qqline(residuals(model_3_q3))
-
-
-plot(residuals(model_3_q3))
-
-#Fitted vs residuals plot exhibiting pattern
-```
-
-
 
 ## Appendix
 
