@@ -213,18 +213,16 @@ sum(puma_data$Income<1)
 
 ```{r, error=TRUE, collapse=TRUE, warning=FALSE, echo=FALSE, results='hide'}
 #relabeling race
+puma_data$Race <- as.numeric(puma_data$Race)
+
 puma_data <- puma_data %>%
   mutate(
     Race = case_when(
-      Race == "1" ~ "White",
-      Race == "2" ~ "Black or African American",
-      Race == "3" ~ "American Indian",
-      Race == "4" ~ "Alaska Native",
-      Race == "5" ~ "Native American Not Specified",
-      Race == "6" ~ "Asian",
-      Race == "7" ~ "Native Hawaiian or Other Pacific Islander",
-      Race == "8" ~ "Other Race",
-      Race == "9" ~ "Two or More Races",
+      Race == 1 ~ "White",
+      Race == 2 ~ "Black/AfricanAmerican",
+      between(as.numeric(Race), 3, 6) ~ "NativeAmerican/Alaskan",
+      between(as.numeric(Race), 6, 7) ~ "Asian/PacificIslander",
+      between(as.numeric(Race), 8, 9) ~ "Other/MoreThanOne",
       TRUE ~ as.character(Race)
     )
 )
