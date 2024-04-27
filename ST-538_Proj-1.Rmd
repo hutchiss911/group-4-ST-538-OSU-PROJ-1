@@ -27,9 +27,6 @@ if (!require(dplyr)) {
 if (!require(ggplot2)) {
   install.packages("ggplot2")
 }
-if (!require(glmnet)) {
-  install.packages("glmnet")
-}
 ```
 
 
@@ -43,6 +40,8 @@ library(faraway)
 library(car)
 library(gridExtra)
 library(glmnet)
+library(ISLR2)
+library(leaps)
 
 census_api_key("2547c95ce33b1ed0eec3aafd0fd8526a5bb9a22e")
 ```
@@ -324,14 +323,10 @@ puma_data <- puma_data %>%
 unique(puma_data$OccupationGroup)
 head(puma_data$OccupationGroup)
 ```
-```{r}
-puma_data_raw <- puma_data
-head(puma_data_raw)
-```
 
 ```{r, error=TRUE, collapse=TRUE, warning=FALSE, echo=FALSE, results='hide'}
 #Rearrange the columns
-puma_data <- puma_data_raw %>%
+puma_data <- puma_data %>%
   select(EducationGroup, EducationLevel, OccupationGroup, Occupation, Income, Age, Sex, Race, Homeownership, PersonNumber)
 head(puma_data)
 ```
@@ -563,25 +558,28 @@ The median income for 50-year-old males in Oregon varies significantly across di
 
 Similarly, for 50-year-old females in Oregon, a comparable pattern was observed. For individuals with less than a high school education, their income is \$14,136.47, slightly increasing for those with a high school diploma, GED, or associate degree to \$20,659.28. As observed in males, there is a significant increase in an income for females with a bachelor's degree, reaching $38,427.51, and continuing to rise with higher educational attainment to \$53,072.1 when they hold a master's degree or higher.
 
-There is a clear relationship between educational attainment and average income for both 50-year-old males and females in Oregon. Individuals with higher levels of education tend to have higher median incomes, with notable increases observed at certain educational milestones, such as obtaining bachelor's degree and above.
+There is a clear relationship between educational attainment and income for both 50-year-old males and females in Oregon. Individuals with higher levels of education tend to have higher median incomes, with notable increases observed at certain educational milestones, such as obtaining bachelor's degree and above.
 
 
 ### Second Question
 
 ```{r}
 # Can we predict household income based on education, occupation, and race/ethnicity?
-head(puma_data_raw)
+head(puma_data)
 ```
 
 ```{r}
-
-puma_data_q2 <- puma_data_raw |>
+puma_data_q2 <- puma_data |>
   select(EducationGroup, Income, Race, OccupationGroup)
 head(puma_data_q2)
 ```
+
+
 ```{r}
 summary(puma_data_q2)
 ```
+
+
 ```{r}
 puma_data_q2_race_income <- puma_data_q2 |>
   group_by(Race, Income) |>
@@ -592,6 +590,8 @@ ggplot(puma_data_q2_race_income, aes(x = Income)) +
   facet_wrap(~Race) +
   labs(title = "Distribution of Income by Race", x = "Income", y = "Frequency")
 ```
+
+
 ```{r}
 puma_data_q2_occ_income <- puma_data_q2 |>
   group_by(OccupationGroup, Income) |>
@@ -604,53 +604,93 @@ ggplot(puma_data_q2_occ_income, aes(x = Income)) +
 
 ```
 
+## Model Selection
+
+```{r}
+#Validation set and CV
+#Separate data into 2 groups, training and testing data
+puma_data_q2
+set.seed(538)
+train <- sample(c(TRUE, FALSE), nrow(puma_data_q2), replace = TRUE)
+test <- (!train)
+
+
+#apply regsubsets() to the training set in order to perform best subset selection
+regfit.best <- regsubsets(Income ~ ., data = puma_data_q2[train, ], nvmax = 19)
+
+#make a model matrix from the test data
+test.mat <- model.matrix(Income ~ ., data = puma_data_q2[test, ]) 
+
+#run a loop, and for each size i
+val.errors <- rep(NA, 19) 
+
+for (i in 1:19) {
+coefi <- coef(regfit.best, id = i)
+pred  <- test.mat[, names(coefi)] %*% coefi 
+val.errors[i] <- mean((puma_data_q2$Income[test] - pred)^2)
+}
+
+val.errors
+which.min(val.errors)
+coef(regfit.best, 19)
+
+#perform best subset selection on the full data set, and select the best 19 variable model
+regfit.best <- regsubsets(Income ~ ., data = puma_data_q2, nvmax = 19)
+coef(regfit.best, 19)
+```
+
+```{r}
+k <- 10
+n <- nrow(puma_data_q2)
+set.seed(1)
+folds <- sample(rep(1:k, length = n)) 
+cv.errors <- matrix(NA, k, 19, 
+                    dimnames = list(NULL, paste(1:19)))
+
+
+#Create predict function
+predict.regsubsets <- function(object, newdata, id, ...) { 
+form <- as.formula(object$call[[2]])
+mat <- model.matrix(form, newdata)
+coefi <- coef(object, id = id)
+xvars <- names(coefi) 
+mat[, xvars] %*% coefi
+}
+
+
+for (j in 1:k) {
+best.fit <- regsubsets(Income ~ .,
+data = puma_data_q2[folds != j, ],
+nvmax = 19) 
+for (i in 1:19) {
+pred <- predict(best.fit, puma_data_q2[folds == j, ], id = i) 
+cv.errors[j, i] <- mean((puma_data_q2$Income[folds == j] - pred)^2) }
+}
+
+
+mean.cv.errors <- apply(cv.errors, 2, mean) 
+mean.cv.errors
+
+par(mfrow = c(1, 1))
+plot(mean.cv.errors, type = "b")
+```
+Cross-validation selects a 19-variable model. We now perform best subset selection on the full data set in order to obtain the 19-variable model.
+
+```{r}
+reg.best <- regsubsets(Income ~ ., data = puma_data_q2, nvmax = 19)
+coef(reg.best, 19)
+```
+
+```{r}
+#TRY Best subset selection
+regfit.full <- regsubsets(Income ~ ., puma_data_q2) 
+summary(regfit.full)
+
+unique(puma_data_q2$OccupationGroup)
+```
+
 ### Third Question
-# Is there a relationship between Occupation, home ownership, race/ethnicity and Marial Status,  OccupationGroup, income?
-
-```{r}
-head(puma_data_raw)
-```
-
-
-```{r}
-puma_data_q3 <- puma_data_raw |>
-  select(Homeownership, Race, MaritalStatus, OccupationGroup, Occupation, Income)
-head(puma_data_q3)
-```
-```{r}
-puma_data_filtered <- puma_data_q3 |>
-  filter(Occupation != 0)
-
-
-ggplot(puma_data_filtered, aes(x = Occupation)) +
-  geom_bar(fill = "skyblue", color = "black") +
-  labs(title = "Distribution of Occupations", x = "Occupation", y = "Count") +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
-```
-
-
-```{r}
-ggplot(puma_data_q3, aes(x = OccupationGroup, y = Occupation)) +
-  geom_bar(stat = "identity", fill = "skyblue", color = "black") +
-  labs(title = "The relationship between OccupationGroup and Occupation Size", x = "OccupationGroup", y = "Occupation Size") +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
-```
-```{r}
-ggplot(puma_data_q3, aes(x = Homeownership, y = Occupation)) +
-  geom_bar(stat = "identity", fill = "skyblue", color = "black") +
-  labs(title = "The relationship between Homeownership and Occupation Size", x = "Homeownership", y = "Occupation Size") +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
-```
-```{r}
-ggplot(puma_data_q3, aes(x = Race, fill = factor(Occupation))) +
-  geom_bar() +
-  labs(title = "Occupation vs. Homeownership by Race", x = "Race", y = "Count of Occupations") +
-  scale_fill_manual(values = c("White" = "blue", "Black" = "red")) +  # Customize colors for each race
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
-
-
-
-```
+# Is there a relationship between race/ethnicity and home ownership?
 
 
 
