@@ -27,6 +27,9 @@ if (!require(dplyr)) {
 if (!require(ggplot2)) {
   install.packages("ggplot2")
 }
+if (!require(glmnet)) {
+  install.packages("glmnet")
+}
 ```
 
 
@@ -321,10 +324,14 @@ puma_data <- puma_data %>%
 unique(puma_data$OccupationGroup)
 head(puma_data$OccupationGroup)
 ```
+```{r}
+puma_data_raw <- puma_data
+head(puma_data_raw)
+```
 
 ```{r, error=TRUE, collapse=TRUE, warning=FALSE, echo=FALSE, results='hide'}
 #Rearrange the columns
-puma_data <- puma_data %>%
+puma_data <- puma_data_raw %>%
   select(EducationGroup, EducationLevel, OccupationGroup, Occupation, Income, Age, Sex, Race, Homeownership, PersonNumber)
 head(puma_data)
 ```
@@ -563,12 +570,12 @@ There is a clear relationship between educational attainment and average income 
 
 ```{r}
 # Can we predict household income based on education, occupation, and race/ethnicity?
-head(puma_data)
+head(puma_data_raw)
 ```
 
 ```{r}
 
-puma_data_q2 <- puma_data |>
+puma_data_q2 <- puma_data_raw |>
   select(EducationGroup, Income, Race, OccupationGroup)
 head(puma_data_q2)
 ```
@@ -598,9 +605,56 @@ ggplot(puma_data_q2_occ_income, aes(x = Income)) +
 ```
 
 ### Third Question
-# Is there a relationship between race/ethnicity and home ownership?
+# Is there a relationship between Occupation, home ownership, race/ethnicity and Marial Status,  OccupationGroup, income?
+
+```{r}
+head(puma_data_raw)
+```
 
 
+```{r}
+puma_data_q3 <- puma_data_raw |>
+  select(Homeownership, Race, MaritalStatus, OccupationGroup, Occupation, Income)
+head(puma_data_q3)
+```
+```{r}
+puma_data_filtered <- puma_data_q3 |>
+  filter(Occupation != 0)
+
+
+ggplot(puma_data_filtered, aes(x = Occupation)) +
+  geom_bar(fill = "skyblue", color = "black") +
+  labs(title = "Distribution of Occupations", x = "Occupation", y = "Count") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+
+```{r}
+ggplot(puma_data_q3, aes(x = OccupationGroup, y = Occupation)) +
+  geom_bar(stat = "identity", fill = "skyblue", color = "black") +
+  labs(title = "The relationship between OccupationGroup and Occupation Size", x = "OccupationGroup", y = "Occupation Size") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
+```
+```{r}
+ggplot(puma_data_q3, aes(x = Homeownership, y = Occupation)) +
+  geom_bar(stat = "identity", fill = "skyblue", color = "black") +
+  labs(title = "The relationship between Homeownership and Occupation Size", x = "Homeownership", y = "Occupation Size") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
+```
+```{r}
+ggplot(puma_data_q3, aes(x = Race, fill = factor(Occupation))) +
+  geom_bar() +
+  labs(title = "Occupation vs. Homeownership by Race", x = "Race", y = "Count of Occupations") +
+  scale_fill_manual(values = c("White" = "blue", "Black" = "red")) +  # Customize colors for each race
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+
+
+```
+
+```{r}
+
+```
 
 ## Appendix
 
