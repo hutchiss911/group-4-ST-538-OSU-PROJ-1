@@ -27,25 +27,9 @@ if (!require(dplyr)) {
 if (!require(ggplot2)) {
   install.packages("ggplot2")
 }
-if (!require(faraway)) {
-  install.packages("faraway")
-}
-if (!require(car)) {
-  install.packages("car")
-}
-if (!require(gridExtra)) {
-  install.packages("gridExtra")
-}
 if (!require(glmnet)) {
   install.packages("glmnet")
 }
-if (!require(ISLR2)) {
-  install.packages("ISLR2")
-}
-if (!require(leaps)) {
-  install.packages("leaps")
-}
-
 ```
 
 
@@ -59,8 +43,6 @@ library(faraway)
 library(car)
 library(gridExtra)
 library(glmnet)
-library(ISLR2)
-library(leaps)
 
 census_api_key("2547c95ce33b1ed0eec3aafd0fd8526a5bb9a22e")
 ```
@@ -213,16 +195,18 @@ sum(puma_data$Income<1)
 
 ```{r, error=TRUE, collapse=TRUE, warning=FALSE, echo=FALSE, results='hide'}
 #relabeling race
-puma_data$Race <- as.numeric(puma_data$Race)
-
 puma_data <- puma_data %>%
   mutate(
     Race = case_when(
-      Race == 1 ~ "White",
-      Race == 2 ~ "Black/AfricanAmerican",
-      between(as.numeric(Race), 3, 6) ~ "NativeAmerican/Alaskan",
-      between(as.numeric(Race), 6, 7) ~ "Asian/PacificIslander",
-      between(as.numeric(Race), 8, 9) ~ "Other/MoreThanOne",
+      Race == "1" ~ "White",
+      Race == "2" ~ "Black or African American",
+      Race == "3" ~ "American Indian",
+      Race == "4" ~ "Alaska Native",
+      Race == "5" ~ "Native American Not Specified",
+      Race == "6" ~ "Asian",
+      Race == "7" ~ "Native Hawaiian or Other Pacific Islander",
+      Race == "8" ~ "Other Race",
+      Race == "9" ~ "Two or More Races",
       TRUE ~ as.character(Race)
     )
 )
@@ -263,7 +247,7 @@ puma_data <- puma_data %>%
 
 #Checking labels are assigned.
 unique(puma_data$HouseAcreage)
-puma_data$HouseAcreage[1500:1600]
+puma_data$HouseAcreage[1200:1300]
 ```
 
 ```{r, error=TRUE, collapse=TRUE, warning=FALSE, echo=FALSE, results='hide'}
@@ -305,13 +289,32 @@ head(puma_data$Sex)
 ```{r, error=TRUE, collapse=TRUE, warning=FALSE, echo=FALSE, results='hide'}
 #Occupation Grouping
 puma_data <- puma_data %>%
-  filter(as.numeric(Occupation) >= 0010 & as.numeric(Occupation) < 9920) %>%
   mutate(
     OccupationGroup = case_when(
-      between(as.numeric(Occupation), 0010, 3550) ~ "Professional/Technical",
-      between(as.numeric(Occupation), 3600, 4160) ~ "Healthcare/FoodServices",
-      between(as.numeric(Occupation), 4200, 7640) ~ "WhiteCollar/BlueCollar",
-      between(as.numeric(Occupation), 7700, 9760) ~ "Manufacturing/Transportation",
+      between(as.numeric(Occupation), 0000, 0009) ~ "Less than 16 years old",
+      between(as.numeric(Occupation), 0010, 0440) ~ "Management",
+      between(as.numeric(Occupation), 0500, 0960) ~ "Business/Finance",
+      between(as.numeric(Occupation), 1000, 1240) ~ "CS/Math/Statistics",
+      between(as.numeric(Occupation), 1300, 1560) ~ "Engineering/Architecture",
+      between(as.numeric(Occupation), 1600, 1980) ~ "Science/Economics",
+      between(as.numeric(Occupation), 2000, 2060) ~ "Social/Therapy/Religious",
+      between(as.numeric(Occupation), 2100, 2180) ~ "Legal",
+      between(as.numeric(Occupation), 2200, 2555) ~ "Education/Library",
+      between(as.numeric(Occupation), 2600, 2920) ~ "Entertainment/Arts/Media/Sports",
+      between(as.numeric(Occupation), 3000, 3550) ~ "Medical",
+      between(as.numeric(Occupation), 3600, 3655) ~ "Health",
+      between(as.numeric(Occupation), 3700, 3960) ~ "Protective/Essential",
+      between(as.numeric(Occupation), 4000, 4160) ~ "Food",
+      between(as.numeric(Occupation), 4200, 4255) ~ "Sanitation/Groundskeeping",
+      between(as.numeric(Occupation), 4300, 4655) ~ "Personal/Lifestyle",
+      between(as.numeric(Occupation), 4700, 4965) ~ "Sales",
+      between(as.numeric(Occupation), 5000, 5940) ~ "Office/Administrative",
+      between(as.numeric(Occupation), 6005, 6130) ~ "Farming/Fishing/Forestry",
+      between(as.numeric(Occupation), 6200, 6765) ~ "Construction",
+      between(as.numeric(Occupation), 6800, 6950) ~ "BlueCollar",
+      between(as.numeric(Occupation), 7000, 7640) ~ "Repairs/Mechanics",
+      between(as.numeric(Occupation), 7700, 8990) ~ "Manufacturing",
+      between(as.numeric(Occupation), 9005, 9760) ~ "Transportation",
       between(as.numeric(Occupation), 9800, 9830) ~ "Military",
       TRUE ~ "Not Classified"
     )
@@ -319,13 +322,16 @@ puma_data <- puma_data %>%
 
 #Checking labels are assigned.
 unique(puma_data$OccupationGroup)
-puma_data$OccupationGroup[2020:2120]
-puma_data$Occupation[puma_data$OccupationGroup == "Not Classified"]
+head(puma_data$OccupationGroup)
+```
+```{r}
+puma_data_raw <- puma_data
+head(puma_data_raw)
 ```
 
 ```{r, error=TRUE, collapse=TRUE, warning=FALSE, echo=FALSE, results='hide'}
 #Rearrange the columns
-puma_data <- puma_data %>%
+puma_data <- puma_data_raw %>%
   select(EducationGroup, EducationLevel, OccupationGroup, Occupation, Income, Age, Sex, Race, Homeownership, PersonNumber)
 head(puma_data)
 ```
@@ -557,28 +563,25 @@ The median income for 50-year-old males in Oregon varies significantly across di
 
 Similarly, for 50-year-old females in Oregon, a comparable pattern was observed. For individuals with less than a high school education, their income is \$14,136.47, slightly increasing for those with a high school diploma, GED, or associate degree to \$20,659.28. As observed in males, there is a significant increase in an income for females with a bachelor's degree, reaching $38,427.51, and continuing to rise with higher educational attainment to \$53,072.1 when they hold a master's degree or higher.
 
-There is a clear relationship between educational attainment and income for both 50-year-old males and females in Oregon. Individuals with higher levels of education tend to have higher median incomes, with notable increases observed at certain educational milestones, such as obtaining bachelor's degree and above.
+There is a clear relationship between educational attainment and average income for both 50-year-old males and females in Oregon. Individuals with higher levels of education tend to have higher median incomes, with notable increases observed at certain educational milestones, such as obtaining bachelor's degree and above.
 
 
 ### Second Question
 
 ```{r}
 # Can we predict household income based on education, occupation, and race/ethnicity?
-head(puma_data)
+head(puma_data_raw)
 ```
 
 ```{r}
-puma_data_q2 <- puma_data |>
+
+puma_data_q2 <- puma_data_raw |>
   select(EducationGroup, Income, Race, OccupationGroup)
 head(puma_data_q2)
 ```
-
-
 ```{r}
 summary(puma_data_q2)
 ```
-
-
 ```{r}
 puma_data_q2_race_income <- puma_data_q2 |>
   group_by(Race, Income) |>
@@ -589,8 +592,6 @@ ggplot(puma_data_q2_race_income, aes(x = Income)) +
   facet_wrap(~Race) +
   labs(title = "Distribution of Income by Race", x = "Income", y = "Frequency")
 ```
-
-
 ```{r}
 puma_data_q2_occ_income <- puma_data_q2 |>
   group_by(OccupationGroup, Income) |>
@@ -603,93 +604,142 @@ ggplot(puma_data_q2_occ_income, aes(x = Income)) +
 
 ```
 
-## Model Selection
-
-```{r}
-#Validation set and CV
-#Separate data into 2 groups, training and testing data
-puma_data_q2
-set.seed(538)
-train <- sample(c(TRUE, FALSE), nrow(puma_data_q2), replace = TRUE)
-test <- (!train)
-
-
-#apply regsubsets() to the training set in order to perform best subset selection
-regfit.best <- regsubsets(Income ~ ., data = puma_data_q2[train, ], nvmax = 19)
-
-#make a model matrix from the test data
-test.mat <- model.matrix(Income ~ ., data = puma_data_q2[test, ]) 
-
-#run a loop, and for each size i
-val.errors <- rep(NA, 19) 
-
-for (i in 1:19) {
-coefi <- coef(regfit.best, id = i)
-pred  <- test.mat[, names(coefi)] %*% coefi 
-val.errors[i] <- mean((puma_data_q2$Income[test] - pred)^2)
-}
-
-val.errors
-which.min(val.errors)
-coef(regfit.best, 19)
-
-#perform best subset selection on the full data set, and select the best 19 variable model
-regfit.best <- regsubsets(Income ~ ., data = puma_data_q2, nvmax = 19)
-coef(regfit.best, 19)
-```
-
-```{r}
-k <- 10
-n <- nrow(puma_data_q2)
-set.seed(1)
-folds <- sample(rep(1:k, length = n)) 
-cv.errors <- matrix(NA, k, 19, 
-                    dimnames = list(NULL, paste(1:19)))
-
-
-#Create predict function
-predict.regsubsets <- function(object, newdata, id, ...) { 
-form <- as.formula(object$call[[2]])
-mat <- model.matrix(form, newdata)
-coefi <- coef(object, id = id)
-xvars <- names(coefi) 
-mat[, xvars] %*% coefi
-}
-
-
-for (j in 1:k) {
-best.fit <- regsubsets(Income ~ .,
-data = puma_data_q2[folds != j, ],
-nvmax = 19) 
-for (i in 1:19) {
-pred <- predict(best.fit, puma_data_q2[folds == j, ], id = i) 
-cv.errors[j, i] <- mean((puma_data_q2$Income[folds == j] - pred)^2) }
-}
-
-
-mean.cv.errors <- apply(cv.errors, 2, mean) 
-mean.cv.errors
-
-par(mfrow = c(1, 1))
-plot(mean.cv.errors, type = "b")
-```
-Cross-validation selects a 19-variable model. We now perform best subset selection on the full data set in order to obtain the 19-variable model.
-
-```{r}
-reg.best <- regsubsets(Income ~ ., data = puma_data_q2, nvmax = 19)
-coef(reg.best, 19)
-```
-
-```{r}
-#TRY Best subset selection
-regfit.full <- regsubsets(Income ~ ., puma_data_q2) 
-summary(regfit.full)
-
-unique(puma_data_q2$OccupationGroup)
-```
-
 ### Third Question
-# Is there a relationship between race/ethnicity and home ownership?
+# Is there a relationship between Occupation, home ownership, race/ethnicity and Marial Status,  OccupationGroup, income?
+
+```{r}
+head(puma_data_raw)
+```
+
+
+```{r}
+puma_data_q3 <- puma_data_raw |>
+  select(Homeownership, Race, MaritalStatus, OccupationGroup, Occupation, Income)
+head(puma_data_q3)
+```
+```{r}
+puma_data_filtered <- puma_data_q3 |>
+  filter(Occupation != 0)
+
+
+ggplot(puma_data_filtered, aes(x = Occupation)) +
+  geom_bar(fill = "skyblue", color = "black") +
+  labs(title = "Distribution of Occupations", x = "Occupation", y = "Count") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+
+```{r}
+ggplot(puma_data_q3, aes(x = OccupationGroup, y = Occupation)) +
+  geom_bar(stat = "identity", fill = "skyblue", color = "black") +
+  labs(title = "The relationship between OccupationGroup and Occupation Size", x = "OccupationGroup", y = "Occupation Size") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
+```
+```{r}
+ggplot(puma_data_q3, aes(x = Homeownership, y = Occupation)) +
+  geom_bar(stat = "identity", fill = "skyblue", color = "black") +
+  labs(title = "The relationship between Homeownership and Occupation Size", x = "Homeownership", y = "Occupation Size") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
+```
+```{r}
+ggplot(puma_data_q3, aes(x = Race, fill = factor(Occupation))) +
+  geom_bar() +
+  labs(title = "Occupation vs. Homeownership by Race", x = "Race", y = "Count of Occupations") +
+  scale_fill_manual(values = c("White" = "blue", "Black" = "red")) +  # Customize colors for each race
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+
+
+```
+```{r}
+model_1_q3 <- lm(Occupation ~ as.factor(MaritalStatus) + as.factor(OccupationGroup) 
+      + as.factor(Homeownership) + as.factor(Race) + Income, data = puma_data_q3)
+
+
+
+```
+
+```{r}
+summary(model_1_q3)
+```
+
+```{r}
+model_2_q3 <- lm(Occupation ~ as.factor(MaritalStatus) + as.factor(OccupationGroup) 
+      + as.factor(Homeownership) + Income, data = puma_data_q3)
+```
+
+```{r}
+summary(model_2_q3)
+```
+```{r}
+#Compare models 1 and model 2
+anova(model_1_q3, model_2_q3)
+```
+Answer:
+From the result, we can see that Model 1 has a lower residual sum of squares 
+(RSS) compared to Model 2, indicating that it fits the data better.
+The F-statistic for the comparison between Model 1 and Model 2 is 5.4446, with 
+a very low p-value (6.915e-07), indicating that the additional predictors in 
+Model 1 significantly improve the fit of the model.
+Based on this information, we can conclude that Model 1 performs better than Model 2. 
+The additional predictors in Model 1 (Race) significantly improve the model's 
+ability to explain the variation in the occupation variable compared to Model 2.
+
+
+```{r}
+
+plot(fitted(model_1_q3), residuals(model_1_q3))
+
+
+qqnorm(residuals(model_1_q3))
+qqline(residuals(model_1_q3))
+
+
+plot(residuals(model_1_q3))
+
+#Fitted vs residuals plot exhibiting pattern
+```
+
+
+```{r}
+model_3_q3 <- lm(Occupation ~ as.factor(MaritalStatus) * as.factor(OccupationGroup) 
+      + as.factor(Homeownership) + as.factor(Race) + Income, data = puma_data_q3)
+
+```
+
+```{r}
+model_4_q3 <- lm(Occupation ~ as.factor(MaritalStatus) + as.factor(OccupationGroup) 
+      * as.factor(Homeownership) + as.factor(Race) + Income, data = puma_data_q3)
+```
+
+```{r}
+summary(model_3_q3)
+```
+
+```{r}
+summary(model_4_q3)
+```
+```{r}
+anova(model_3_q3, model_4_q3)
+```
+Model 3 has a lower residual sum of squares (RSS) compared to Model 4, indicating 
+a better fit to the data.
+Since Model 1 has a lower RSS with the same degrees of freedom as Model 2, we can 
+conclude that Model 3 performs better in terms of model fit.
+Therefore, based on the information provided, Model 3 is better than Model 4.
+
+```{r}
+plot(fitted(model_3_q3), residuals(model_3_q3))
+
+
+qqnorm(residuals(model_3_q3))
+qqline(residuals(model_3_q3))
+
+
+plot(residuals(model_3_q3))
+
+#Fitted vs residuals plot exhibiting pattern
+```
 
 
 
