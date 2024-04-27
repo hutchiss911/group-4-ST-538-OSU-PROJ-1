@@ -652,9 +652,7 @@ ggplot(puma_data_q3, aes(x = Race, fill = factor(Occupation))) +
 
 ```
 
-```{r}
 
-```
 
 ## Appendix
 
