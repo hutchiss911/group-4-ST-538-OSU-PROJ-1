@@ -316,7 +316,7 @@ head(puma_data$OccupationGroup)
 ```{r, error=TRUE, collapse=TRUE, warning=FALSE, echo=FALSE, results='hide'}
 #Rearrange the columns
 puma_data <- puma_data %>%
-  select(EducationGroup, EducationLevel, OccupationGroup, Occupation, Income, Age, Sex, Race, Homeownership, PersonNumber)
+  select(EducationGroup, EducationLevel, OccupationGroup, Occupation, Income, Age, Sex, Race, MaritalStatus, Homeownership, HouseAcreage, PersonNumber)
 head(puma_data)
 ```
 
