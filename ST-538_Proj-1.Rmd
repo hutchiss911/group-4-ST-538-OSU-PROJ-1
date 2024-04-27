@@ -45,6 +45,7 @@ if (!require(ISLR2)) {
 if (!require(leaps)) {
   install.packages("leaps")
 }
+
 ```
 
 
@@ -213,6 +214,7 @@ sum(puma_data$Income<1)
 ```{r, error=TRUE, collapse=TRUE, warning=FALSE, echo=FALSE, results='hide'}
 #relabeling race
 puma_data$Race <- as.numeric(puma_data$Race)
+
 puma_data <- puma_data %>%
   mutate(
     Race = case_when(
@@ -261,7 +263,7 @@ puma_data <- puma_data %>%
 
 #Checking labels are assigned.
 unique(puma_data$HouseAcreage)
-puma_data$HouseAcreage[1200:1300]
+puma_data$HouseAcreage[1500:1600]
 ```
 
 ```{r, error=TRUE, collapse=TRUE, warning=FALSE, echo=FALSE, results='hide'}
@@ -314,20 +316,16 @@ puma_data <- puma_data %>%
       TRUE ~ "Not Classified"
     )
   )
+
 #Checking labels are assigned.
 unique(puma_data$OccupationGroup)
 puma_data$OccupationGroup[2020:2120]
 puma_data$Occupation[puma_data$OccupationGroup == "Not Classified"]
 ```
 
-```{r}
-puma_data_raw <- puma_data
-head(puma_data_raw)
-```
-
 ```{r, error=TRUE, collapse=TRUE, warning=FALSE, echo=FALSE, results='hide'}
 #Rearrange the columns
-puma_data <- puma_data_raw %>%
+puma_data <- puma_data %>%
   select(EducationGroup, EducationLevel, OccupationGroup, Occupation, Income, Age, Sex, Race, Homeownership, PersonNumber)
 head(puma_data)
 ```
@@ -559,26 +557,30 @@ The median income for 50-year-old males in Oregon varies significantly across di
 
 Similarly, for 50-year-old females in Oregon, a comparable pattern was observed. For individuals with less than a high school education, their income is \$14,136.47, slightly increasing for those with a high school diploma, GED, or associate degree to \$20,659.28. As observed in males, there is a significant increase in an income for females with a bachelor's degree, reaching $38,427.51, and continuing to rise with higher educational attainment to \$53,072.1 when they hold a master's degree or higher.
 
-There is a clear relationship between educational attainment and average income for both 50-year-old males and females in Oregon. Individuals with higher levels of education tend to have higher median incomes, with notable increases observed at certain educational milestones, such as obtaining bachelor's degree and above.
+There is a clear relationship between educational attainment and income for both 50-year-old males and females in Oregon. Individuals with higher levels of education tend to have higher median incomes, with notable increases observed at certain educational milestones, such as obtaining bachelor's degree and above.
 
 
 ### Second Question
 
-```{r}
+```{r, message=FALSE, echo=FALSE, results='hide', warning=FALSE}
 # Can we predict household income based on education, occupation, and race/ethnicity?
-head(puma_data_raw)
+head(puma_data)
 ```
 
-```{r}
-
-puma_data_q2 <- puma_data_raw |>
+```{r, message=FALSE, echo=FALSE, results='hide', warning=FALSE}
+puma_data_q2 <- puma_data |>
   select(EducationGroup, Income, Race, OccupationGroup)
 head(puma_data_q2)
 ```
-```{r}
+
+
+```{r, message=FALSE, echo=FALSE, results='hide', warning=FALSE}
 summary(puma_data_q2)
 ```
-```{r}
+
+
+```{r, message=FALSE, echo=FALSE, results='hide', warning=FALSE}
+#Data visualization
 puma_data_q2_race_income <- puma_data_q2 |>
   group_by(Race, Income) |>
   summarise(n = n())
@@ -588,7 +590,10 @@ ggplot(puma_data_q2_race_income, aes(x = Income)) +
   facet_wrap(~Race) +
   labs(title = "Distribution of Income by Race", x = "Income", y = "Frequency")
 ```
-```{r}
+
+
+```{r, message=FALSE, echo=FALSE, results='hide', warning=FALSE}
+#Data visualization
 puma_data_q2_occ_income <- puma_data_q2 |>
   group_by(OccupationGroup, Income) |>
   summarise(n = n())
@@ -599,6 +604,95 @@ ggplot(puma_data_q2_occ_income, aes(x = Income)) +
   labs(title = "Distribution of Income by Occupation Group and Race", x = "Income", y = "Frequency")
 
 ```
+
+## Model Selection
+
+
+We explored the predictive power of EducationGroup, OccupationGroup, and Race in forecasting household income through the Validation-Set Approach and Cross-Validation. Initially, we separated our dataset into training and testing sets. Employing best subset selection exclusively on the training data, we determined the most effective model for each model size, assessing the validation set error accordingly. Consequently, the model that includes nine variables identified as the most optimal. This process was then replicated on the entire dataset, confirming that the best nine-variable model from the training data are identical to the full dataset.
+
+Furthermore, we utilized cross-validation to choose models of varying sizes. 10-fold cross-validation was deployed and resulted in the selection of an eleven-variable model, which are all variables present in the dataset. Therefore, we performed best subset selection on the full data set in order to obtain the 11-variable model, we obtained all variables. The plot below shows that the model with 11 variables has the least mean square error.
+
+
+```{r, message=FALSE, echo=FALSE, results='hide', warning=FALSE}
+#Validation set and CV
+#Separate data into 2 groups, training and testing data
+set.seed(538)
+train <- sample(c(TRUE, FALSE), nrow(puma_data_q2), replace = TRUE)
+test <- (!train)
+
+
+#apply regsubsets() to the training set in order to perform best subset selection
+regfit.best <- regsubsets(Income ~ ., data = puma_data_q2[train, ], nvmax = 11)
+
+#make a model matrix from the test data
+test.mat <- model.matrix(Income ~ ., data = puma_data_q2[test, ]) 
+
+#run a loop, and for each size i
+val.errors <- rep(NA, 11) 
+
+for (i in 1:11) {
+coefi <- coef(regfit.best, id = i)
+pred  <- test.mat[, names(coefi)] %*% coefi 
+val.errors[i] <- mean((puma_data_q2$Income[test] - pred)^2)
+}
+
+#Show MSE
+val.errors
+which.min(val.errors)
+coef(regfit.best, 9)
+
+#perform best subset selection on the full data set, and select the best 9 variable model
+regfit.best <- regsubsets(Income ~ ., data = puma_data_q2, nvmax =11)
+coef(regfit.best, 9)
+```
+
+```{r, message=FALSE, echo=FALSE, results='hide', warning=FALSE}
+k <- 10
+n <- nrow(puma_data_q2)
+set.seed(1)
+folds <- sample(rep(1:k, length = n)) 
+cv.errors <- matrix(NA, k, 11, 
+                    dimnames = list(NULL, paste(1:11)))
+
+
+#Create predict function
+predict.regsubsets <- function(object, newdata, id, ...) { 
+form <- as.formula(object$call[[2]])
+mat <- model.matrix(form, newdata)
+coefi <- coef(object, id = id)
+xvars <- names(coefi) 
+mat[, xvars] %*% coefi
+}
+
+
+for (j in 1:k) {
+best.fit <- regsubsets(Income ~ .,
+data = puma_data_q2[folds != j, ],
+nvmax = 11) 
+for (i in 1:11) {
+pred <- predict(best.fit, puma_data_q2[folds == j, ], id = i) 
+cv.errors[j, i] <- mean((puma_data_q2$Income[folds == j] - pred)^2) }
+}
+
+
+mean.cv.errors <- apply(cv.errors, 2, mean) 
+mean.cv.errors
+
+par(mfrow = c(1, 1))
+plot(mean.cv.errors, type = "b")
+```
+
+
+```{r}
+#Cross-validation selects a 11-variable model
+#perform best subset selection on the full data set in order to obtain the 11-variable model
+#11 variables includes all variables in the dataset
+reg.best <- regsubsets(Income ~ ., data = puma_data_q2, nvmax = 11)
+coef(reg.best, 11)
+```
+## Intrepret the data
+
+In this question, we wants to know if we can predict household income based on education, occupation, and race/ethnicity? In conclusion, our validation set and cross-validation analyses strongly indicate that EducationGroup, Race, and OccupationGroup are significant predictors of household income. These findings shed light on the key factors influencing income levels and could guide future research and policy efforts aimed at reducing income disparities.
 
 ### Third Question
 # Is there a relationship between Occupation, home ownership, race/ethnicity and Marial Status,  OccupationGroup, income?
@@ -948,5 +1042,3 @@ new_data_2 <- data.frame(EducationGroup = c("No schooling completed","Less than 
 mu_2 <- predict(model_8, newdata = new_data_2 , type = "response")
 exp(mu_2)
 ```
-
-
