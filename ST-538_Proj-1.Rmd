@@ -741,6 +741,9 @@ ggplot(puma_data_q3, aes(x = Race, fill = factor(Occupation))) +
 
 
 ```
+
+## Model selection
+
 ```{r}
 model_1_q3 <- lm(Occupation ~ as.factor(MaritalStatus) + as.factor(OccupationGroup) 
       + as.factor(Homeownership) + as.factor(Race) + Income, data = puma_data_q3)
@@ -830,6 +833,111 @@ plot(residuals(model_3_q3))
 
 #Fitted vs residuals plot exhibiting pattern
 ```
+## Model interpretation
+
+
+```{r}
+
+summary(model_1_q3)$coefficients
+summary(model_1_q3)$r.squared
+plot(model_1_q3)
+```
+Answer:
+From the model, we get the formula: Occupation=3.779623×Intercept
+−5.682494×Married +5.002508×Not Married/Under 15
+−69.46579×Separated
+−23.86628×Widowed
++5092.785×Manufacturing/Transportation
++5967.028×Military
+−2301.276×Professional/Technical
++1500.935×WhiteCollar/BlueCollar
+−86.83271×Occupied without payment of rent
++31.75971×Owned free and clear
++13.18805×Owned with mortgage or loan
++10.9471×Rented
++41.31494×Black/African American
++91.19606×Native American/Alaskan
++113.0133×Other/MoreThanOne
++112.7199×White
+−0.0008919726×Income
+
+```{r}
+train_index <- sample(1:nrow(puma_data_q3), 0.8 * nrow(puma_data_q3))  # 80% for training
+train_data <- puma_data_q3[train_index, ]
+test_data <- puma_data_q3[-train_index, ]
+
+```
+
+
+```{r}
+model_1_q3 <- lm(Occupation ~ as.factor(MaritalStatus) + as.factor(OccupationGroup) 
+      + as.factor(Homeownership) + as.factor(Race) + Income, data = puma_data_q3)
+
+test_rmse <- numeric(num_folds)
+test_mae <- numeric(num_folds)
+
+
+for (i in 1:num_folds) {
+
+  train_index <- sample(1:nrow(puma_data_q3), 0.8 * nrow(puma_data_q3))  # 80% for training
+  train_data <- puma_data_q3[train_index, ]
+  test_data <- puma_data_q3[-train_index, ]
+  
+
+  model_1 <- lm(Occupation ~ as.factor(MaritalStatus) + as.factor(OccupationGroup) 
+      + as.factor(Homeownership) + as.factor(Race) + Income, data = train_data)
+  
+
+  predictions <- predict(model_1, newdata = test_data)
+  
+
+  test_rmse[i] <- sqrt(mean((test_data$Occupation - predictions)^2))
+  test_mae[i] <- mean(abs(test_data$Occupation - predictions))
+}
+
+
+avg_test_rmse <- mean(test_rmse)
+avg_test_mae <- mean(test_mae)
+
+# Print average test set performance
+cat("Average Test RMSE:", avg_test_rmse, "\n")
+cat("Average Test MAE:", avg_test_mae, "\n")
+
+
+```
+```{r}
+
+test_rmse <- numeric(num_folds)
+test_mae <- numeric(num_folds)
+
+
+for (i in 1:num_folds) {
+
+  train_index <- sample(1:nrow(puma_data_q3), 0.8 * nrow(puma_data_q3))  # 80% for training
+  train_data <- puma_data_q3[train_index, ]
+  test_data <- puma_data_q3[-train_index, ]
+  
+
+  model_3 <- lm(Occupation ~ as.factor(MaritalStatus) * as.factor(OccupationGroup) 
+      + as.factor(Homeownership) + as.factor(Race) + Income, data = puma_data_q3)
+  
+
+  predictions <- predict(model_3, newdata = test_data)
+  
+
+  test_rmse[i] <- sqrt(mean((test_data$Occupation - predictions)^2))
+  test_mae[i] <- mean(abs(test_data$Occupation - predictions))
+}
+
+
+avg_test_rmse <- mean(test_rmse)
+avg_test_mae <- mean(test_mae)
+
+# Print average test set performance
+cat("Average Test RMSE:", avg_test_rmse, "\n")
+cat("Average Test MAE:", avg_test_mae, "\n")
+```
+
 
 
 
