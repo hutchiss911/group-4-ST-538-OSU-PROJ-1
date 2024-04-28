@@ -4,7 +4,7 @@ author:
 - Di Chen
 - Mai Castellano
 - Tyler Kussee
-- Spencer Hutchison
+- Spencer (Hutchison) Yang
 output: pdf_document
 ---
 
@@ -79,9 +79,9 @@ with the following 3 questions they would like to answer:
 * Can we predict household income based on education, occupation, and race/ethnicity?
 * Is there a relationship between race/ethnicity and home ownership?
 
-# Obtain the Data
+# Obtain/Scrub the data
 
-In the case of the ACS dataset, we'll pull it via an API. We've already declared our key earlier, so now we just need to pull our dataset with the variables and filtering we'd like. In this case we'll want to pull our Age (AGEP), Education Level (SCHL), sex (SEX), and Total Person's Income (PINCP) while filtering to the year 2022 and the State of OR.
+In the case of the ACS dataset, we'll pull it via an API. In this case we'll want to pull our Age (AGEP), Education Level (SCHL), sex (SEX), Race (RAC1P), Occupation (OCCP), Tenure (TEN), Marital Status (MAR), and Total Person's Income (PINCP) while filtering to the year 2022 and the State of OR.
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, results='hide'}
 #Pull data set for specific variables
@@ -90,13 +90,11 @@ puma_data <- get_pums(variables = c("AGEP","SCHL","PINCP", "SEX", "RAC1P", "TEN"
                       ,year = 2022)
 ```
 
-# Scrub the data
-
 In the data cleaning process, we began by assigning more descriptive column names to enhance clarity. Columns such as "ST", "Serial Number", and "housing weight" were removed as they were deemed unnecessary for our analysis, while "PersonNumber" was retained for potential future use. Subsequently, we converted instances of "bb" in the Education level, "bbbb"/"000N" in the Occupation, and "b" in Homeownership columns to 0, followed by transformation of all 3 columns into numeric values. 
 
-Groupings were then created based on education levels, ranging from "No Education" to "Doctoral Degree". Additional groupings were generated based on Occupation values, resulting in specific industries/positions to get classified. The column order was rearranged for better organization. 
+Groupings were then created based on education levels, ranging from "No Education" to "Doctoral Degree". Additional groupings were generated based on Occupation values, resulting in specific industries/positions to get classified. Groupings were also created based on Race, Marital Status, and HouseAcreage. Various columns received descriptive categories like Homeownership, then the column order was rearranged for better organization. 
 
-As our focus is on income, individuals under the age of 14 were excluded from the dataset, aligning with Oregon's legal working age. Variable codes were converted to their corresponding descriptions, starting with Education Level. Lastly, we identified the genders present in the dataset to facilitate further analysis. This systematic approach ensures that the data is cleaned and structured appropriately for subsequent analysis.
+As our focus is on income, individuals under the age of 14 were excluded from the dataset, aligning with Oregon's legal working age. Additional filtering was included on our occupation groupings to ensure unemployed and under 14 records were excluded. Variable codes were converted to their corresponding descriptions, starting with Education Level. Lastly, we identified the genders present in the dataset to facilitate further analysis. This systematic approach ensures that the data is cleaned and structured appropriately for subsequent analysis.
 
 ```{r, error=TRUE, collapse=TRUE, warning=FALSE, echo=FALSE, results='hide'}
 #Rename the columns
@@ -283,7 +281,6 @@ unique(puma_data$Homeownership)
 puma_data$Homeownership[11200:11300]
 ```
 
-
 ```{r, error=TRUE, collapse=TRUE, warning=FALSE, echo=FALSE, results='hide'}
 #Identify gender
 puma_data <- puma_data %>%
@@ -333,9 +330,6 @@ puma_data <- puma_data %>%
 head(puma_data)
 ```
 
-
-With the data cleaned up, we can now explore the data.
-
 # Explore the data
 
 We want to get a sense for the data that we'll be working with so first we'll find the range of ages that we have in our dataset. This shows that our mean and median age is very close together (50.99 and 51 respectively) showing a good distribution of ages; with a max age of 95. Education level has a similar mean and median (16.31, and 18 respectively), and it gives us a good way to  picture our distribution as well.  Unlike our age distribution the income mean and median are a bit off (50,432 and 33,700 respectively). This is something we may need to look into more in a graphical view. We also review a table of the levels of education and the their counts.
@@ -353,7 +347,7 @@ table(puma_data$Homeownership) #Count of each Homeownership
 table(puma_data$OccupationGroup) #Count of each Occupationgroup
 ```
 
-Next we'll take a look into the income distribution in a graphical view. For this view we will also remove those that are below 0. This allows us to see a very long tailed view of the income distribution for our dataset. Our mean being the tallest point in the graph being around that $21,000 we saw in our exploration. Related to this is the variable occupation groups. These are a little difficult to decipher because there are three categories that are very general that take up 31% of the total working population and those are Management, Office/Admin and Sales. These are broad groups, but hopefully with the other categories and variables we will be able to create a model that will effectively utilize these occupation groups.
+Next, we explored the income distribution using a graphical representation, removing individuals with negative income values to gain a clearer understanding of the data. The resulting graph revealed a highly skewed distribution with a long tail, indicating a concentration of individuals around the mean income of approximately $21,000. We also examined the occupation groups variable in relation to income, but found it challenging to interpret due to the presence of three broad categories - Management, Office/Admin, and Sales - which collectively accounted for a significant portion of the working population. Despite this limitation, by leveraging the other available variables, we can develop a model that effectively incorporates the occupation groups and provides valuable insights into their relationship with income.
 
 ```{r, message=FALSE, echo=FALSE, results='hide', warning=FALSE, fig.show='hide'}
 #Plot income distribution
@@ -366,9 +360,9 @@ ggplot(puma_data %>% filter(Income > 0), aes(Income)) +
   theme_minimal()
 ```
 
-[Reference on Variables for now](https://usa.ipums.org/usa/resources/codebooks/DataDict1822.pdf)
-
 # Model the data
+
+## Question 1
 
 We compared two regression models: the first model included EducationGroup, Sex, and Age as explanatory variables, while the second model extended to incorporate an interaction between Sex and Age. ANOVA comparisons between the full and nested models provided compelling evidence that the latter, which accounted for the interaction term, was a better fit (Analysis of variance, p < 0.00001). However, subsequent examination of model diagnostics revealed a violation of the linearity assumption. To address this issue, we transformed the response variable using a logarithmic function.
 
@@ -387,8 +381,6 @@ anova(model_1, model_2)
 #The full model provides a significantly better fit.
 ```
 
-
-
 ```{r, message=FALSE, echo=FALSE, results='hide', warning=FALSE, fig.show='hide'}
 #Linearity and Homoscedasticity assumption
 plot(fitted(model_2), residuals(model_2))
@@ -402,7 +394,6 @@ plot(residuals(model_2))
 
 #Fitted vs residuals plot exhibiting pattern
 ```
-
 
 ```{r,  message=FALSE, echo=FALSE, results='hide', warning=FALSE, fig.show='hide'}
 #Logged models
@@ -491,7 +482,9 @@ plot(residuals(model_5))
 ```
 ```{r,  error=TRUE, collapse=TRUE, warning=FALSE, echo=FALSE, results='hide'}
 #Multi-colinearlity
+options(warn=-1)
 vif(model_5)
+options(warn=0)
 ```
 
 ```{r, message=FALSE, echo=FALSE, results='hide', warning=FALSE, fig.show='hide'}
@@ -529,45 +522,7 @@ $$log(Income) = 9.436 + 0.379(HS, GED, or Associates Degree) +$$
 $$ 1(Bachelors Degree) + 1.323(Masters Degree or higher) + $$
 $$0.232(Male) + 0.002(Age) + 0.003(Male:Age)$$
 
-# Interpret the data
-
-To answer our question, does higher education mean higher income accounting for sex and age? Use the fitted model to compare the income across all 4 levels of education for a 50 years old (mean and median of the dataset) for males and females in Oregon.
-
-```{r,  error=TRUE, collapse=TRUE, warning=FALSE, echo=FALSE, results='hide'}
-#Calculate median income for 50 YO males
-coef <- coef(model_6)
-lw_HS_m  <- coef[1, ] + coef[5, ] + (50*coef[6, ]) + (50*1*coef[7, ]) #lower than HS male
-GED_m    <- coef[1, ] + coef[2, ] + coef[5, ] + (50*coef[6, ]) + (50*1*coef[7, ]) #HS, GED, Associate degree male
-bach_m   <- coef[1, ] + coef[3, ] + coef[5, ] + (50*coef[6, ]) + (50*1*coef[7, ]) #Bachelor's degree male
-master_m <- coef[1, ] + coef[4, ] + coef[5, ] + (50*coef[6, ]) + (50*1*coef[7, ]) #master or higher male
-
-exp(lw_HS_m)
-exp(GED_m)
-exp(bach_m)
-exp(master_m)
-
-#Calculate median income for 50 YO females
-
-lw_HS_f  <- coef[1, ] + (50*coef[6, ]) #lower than HS female
-GED_f    <- coef[1, ] + coef[2, ] + (50*coef[6, ]) #HS, GED, Associate degree female
-bach_f   <- coef[1, ] + coef[3, ] + (50*coef[6, ]) #Bachelor's degree female
-master_f <- coef[1, ] + coef[4, ] + (50*coef[6, ]) #master or higher female
-
-exp(lw_HS_f)
-exp(GED_f)
-exp(bach_f)
-exp(master_f)
-```
-
-The median income for 50-year-old males in Oregon varies significantly across different educational categories. For individuals with less than a high school education, their income is \$21,273.80, slightly lower than those with a high school diploma, GED, or associate degree at \$31,089.90. Individuals with a bachelor's degree see a notable increase in an income to \$57,829.09 and $79,867.54 for those with a master's degree or higher.
-
-Similarly, for 50-year-old females in Oregon, a comparable pattern was observed. For individuals with less than a high school education, their income is \$14,136.47, slightly increasing for those with a high school diploma, GED, or associate degree to \$20,659.28. As observed in males, there is a significant increase in an income for females with a bachelor's degree, reaching $38,427.51, and continuing to rise with higher educational attainment to \$53,072.1 when they hold a master's degree or higher.
-
-There is a clear relationship between educational attainment and income for both 50-year-old males and females in Oregon. Individuals with higher levels of education tend to have higher median incomes, with notable increases observed at certain educational milestones, such as obtaining bachelor's degree and above.
-
-
-## Second Question
-Can we predict household income based on education, occupation, and race/ethnicity?
+## Question 2
 
 ```{r, error=TRUE, collapse=TRUE, warning=FALSE, echo=FALSE, results='hide'}
 puma_data_q2 <- puma_data |>
@@ -606,10 +561,8 @@ ggplot(puma_data_q2_occ_income, aes(x = Income)) +
 
 ```
 
-## Model Selection
 
-
-We explored the predictive power of EducationGroup, OccupationGroup, and Race in forecasting household income through the Validation-Set Approach and Cross-Validation. Initially, we separated our dataset into training and testing sets. Employing best subset selection exclusively on the training data, we determined the most effective model for each model size, assessing the validation set error accordingly. Consequently, the model that includes nine variables identified as the most optimal. This process was then replicated on the entire dataset, confirming that the best nine-variable model from the training data are identical to the full dataset.
+Can we predict household income based on education, occupation, and race/ethnicity? We explored the predictive power of EducationGroup, OccupationGroup, and Race in forecasting household income through the Validation-Set Approach and Cross-Validation. Initially, we separated our dataset into training and testing sets. Employing best subset selection exclusively on the training data, we determined the most effective model for each model size, assessing the validation set error accordingly. Consequently, the model that includes nine variables identified as the most optimal. This process was then replicated on the entire dataset, confirming that the best nine-variable model from the training data are identical to the full dataset.
 
 Furthermore, we utilized cross-validation to choose models of varying sizes. 10-fold cross-validation was deployed and resulted in the selection of an eleven-variable model, which are all variables present in the dataset. Therefore, we performed best subset selection on the full data set in order to obtain the 11-variable model, we obtained all variables. The plot below shows that the model with 11 variables has the least mean square error.
 
@@ -691,17 +644,14 @@ plot(mean.cv.errors, type = "b")
 reg.best <- regsubsets(Income ~ ., data = puma_data_q2, nvmax = 11)
 coef(reg.best, 11)
 ```
-## Intrepret the data
 
-In this question, we wants to know if we can predict household income based on education, occupation, and race/ethnicity? In conclusion, our validation set and cross-validation analyses strongly indicate that EducationGroup, Race, and OccupationGroup are significant predictors of household income. These findings shed light on the key factors influencing income levels and could guide future research and policy efforts aimed at reducing income disparities.
+## Question 3
 
-## Third Question
 Is there a relationship between Occupation, home ownership, race/ethnicity and Marial Status,  OccupationGroup, income?
 
 ```{r, error=TRUE, collapse=TRUE, warning=FALSE, echo=FALSE, results='hide'}
 head(puma_data_raw)
 ```
-
 
 ```{r, error=TRUE, collapse=TRUE, warning=FALSE, echo=FALSE, results='hide'}
 puma_data_q3 <- puma_data_raw |>
@@ -718,7 +668,6 @@ ggplot(puma_data_filtered, aes(x = Occupation)) +
   labs(title = "Distribution of Occupations", x = "Occupation", y = "Count") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
-
 
 ```{r,message=FALSE, echo=FALSE, results='hide', warning=FALSE, fig.show='hide'}
 ggplot(puma_data_q3, aes(x = OccupationGroup, y = Occupation)) +
@@ -740,11 +689,7 @@ ggplot(puma_data_q3, aes(x = Race, fill = factor(Occupation))) +
   scale_fill_manual(values = c("White" = "blue", "Black" = "red")) +  # Customize colors for each race
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
-
-
 ```
-
-## Model selection
 
 ```{r, error=TRUE, collapse=TRUE, warning=FALSE, echo=FALSE, results='hide'}
 model_1_q3 <- lm(Occupation ~ as.factor(MaritalStatus) + as.factor(OccupationGroup) 
@@ -773,6 +718,7 @@ From the result, we can see that Model 1 has a lower residual sum of squares
 The F-statistic for the comparison between Model 1 and Model 2 is 5.4446, with 
 a very low p-value (6.915e-07), indicating that the additional predictors in 
 Model 1 significantly improve the fit of the model.
+
 Based on this information, we can conclude that Model 1 performs better than Model 2. 
 The additional predictors in Model 1 (Race) significantly improve the model's 
 ability to explain the variation in the occupation variable compared to Model 2.
@@ -816,9 +762,7 @@ summary(model_4_q3)
 anova(model_3_q3, model_4_q3)
 ```
 
-Model 3 has a lower residual sum of squares (RSS) compared to Model 4, indicating 
-a better fit to the data. Since Model 1 has a lower RSS with the same degrees of freedom as Model 2, we can conclude that Model 3 performs better in terms of model fit.
-Therefore, based on the information provided, Model 3 is better than Model 4.
+Based on our findings, Model 3 demonstrated a better fit to the data compared to Model 4, as evidenced by its lower residual sum of squares (RSS). Additionally, when comparing Model 1 and Model 2, Model 1 exhibited a lower RSS and the same level of degrees of freedom, indicating a better model fit in this comparison. However, given that Model 3 outperformed Model 4 in terms of RSS and considering the relative performance of Model 1 and Model 2 from our findings, we would conclude that Model 3 is the preferred choice based on current data.
 
 ```{r, message=FALSE, echo=FALSE, results='hide', warning=FALSE, fig.show='hide'}
 plot(fitted(model_3_q3), residuals(model_3_q3))
@@ -832,8 +776,52 @@ plot(residuals(model_3_q3))
 
 #Fitted vs residuals plot exhibiting pattern
 ```
-## Model interpretation
 
+# Interpret the data
+
+## Question 1
+
+To answer our question, does higher education mean higher income accounting for sex and age, we utilized the fitted model to compare income levels across four educational categories for 50-year-old males and females in Oregon (mean and median). The results showed a clear positive relationship between educational attainment and income for both sexes.
+
+```{r,  error=TRUE, collapse=TRUE, warning=FALSE, echo=FALSE, results='hide'}
+#Calculate median income for 50 YO males
+coef <- coef(model_6)
+lw_HS_m  <- coef[1, ] + coef[5, ] + (50*coef[6, ]) + (50*1*coef[7, ]) #lower than HS male
+GED_m    <- coef[1, ] + coef[2, ] + coef[5, ] + (50*coef[6, ]) + (50*1*coef[7, ]) #HS, GED, Associate degree male
+bach_m   <- coef[1, ] + coef[3, ] + coef[5, ] + (50*coef[6, ]) + (50*1*coef[7, ]) #Bachelor's degree male
+master_m <- coef[1, ] + coef[4, ] + coef[5, ] + (50*coef[6, ]) + (50*1*coef[7, ]) #master or higher male
+
+exp(lw_HS_m)
+exp(GED_m)
+exp(bach_m)
+exp(master_m)
+
+#Calculate median income for 50 YO females
+
+lw_HS_f  <- coef[1, ] + (50*coef[6, ]) #lower than HS female
+GED_f    <- coef[1, ] + coef[2, ] + (50*coef[6, ]) #HS, GED, Associate degree female
+bach_f   <- coef[1, ] + coef[3, ] + (50*coef[6, ]) #Bachelor's degree female
+master_f <- coef[1, ] + coef[4, ] + (50*coef[6, ]) #master or higher female
+
+exp(lw_HS_f)
+exp(GED_f)
+exp(bach_f)
+exp(master_f)
+```
+
+The median income for 50-year-old males in Oregon varies significantly across different educational categories. For individuals with less than a high school education, their income is \$21,273.80, slightly lower than those with a high school diploma, GED, or associate degree at \$31,089.90. Individuals with a bachelor's degree see a notable increase in an income to \$57,829.09 and $79,867.54 for those with a master's degree or higher.
+
+Similarly, for 50-year-old females in Oregon, a comparable pattern was observed. For individuals with less than a high school education, their income is \$14,136.47, slightly increasing for those with a high school diploma, GED, or associate degree to \$20,659.28. As observed in males, there is a significant increase in an income for females with a bachelor's degree, reaching $38,427.51, and continuing to rise with higher educational attainment to \$53,072.1 when they hold a master's degree or higher.
+
+From these results, there is a strong positive correlation between educational attainment and income for both 50-year-old males and females in Oregon. Individuals with higher levels of education tend to have higher median incomes, with notable increases observed at certain educational milestones, such as obtaining bachelor's degree and above.
+
+## Question 2
+
+To determine if we can predict household income based on education, occupation, and race/ethnicity, we conducted validation and cross-validation tests and analyses on our dataset. our current findings suggest that Education, Race, and OccupationGroup are significant predictors for household income. These findings shed light on the key factors influencing income levels and could guide future research and policy efforts aimed at reducing income disparities.
+
+## Question 3
+
+To investigate the relationship between race/ethnicity and home ownership, we employed a linear regression model that incorporated MaritalStatus, OccupationGroup, Homeownership, and Race against MaritalStatus and OccupationGroup to delve into the various insights we can gather from the model's coefficients, along with various diagnostic plotting. From there we can gather a meaningful conclusion on the strength of these relationships.
 
 ```{r, message=FALSE, echo=FALSE, results='hide', warning=FALSE, fig.show='hide'}
 
@@ -841,9 +829,8 @@ summary(model_1_q3)$coefficients
 summary(model_1_q3)$r.squared
 plot(model_1_q3)
 ```
-Answer:
-From the model, we get the formula:
 
+Based off what we saw via the summary of the linear regression model, we get the following formula to use:
 
 $$Occupation=3.779623 \times Intercept
 -5.682494 \times Married + 5.002508 \times Not Married/Under 15$$
@@ -942,13 +929,30 @@ cat("Average Test RMSE:", avg_test_rmse, "\n")
 cat("Average Test MAE:", avg_test_mae, "\n")
 ```
 
-#Obstacles
+This formula allows us to see how each variable contributes to our home ownership values. We employed a cross-validation approach using 10 folds (the default) to assess the model's performance. We began with splitting our data into a training and testing set, and then trained and evaluated the results. since we employed cross-validation, we repeated this 10 time times, and found the average Root Mean Square Error of 896.4357 and Mean Absolute Error of 739.1021 for the folds. 
 
-* Git collaboration: At the beginning, each team member is using the main branch to commit changes without validating other people’s changes. Then we decided to use the personal branch first and the other team members validated before merging into the main. However, when we worked together and kept pushing into the main, there was code code conflict. We review the conflict and use the git command to resolve the conflict.
-* Future work/improvement: For our team data, in the categorical variable, there are too many categories. It causes our R notebook compute time to be too long and hard to interpret the result when we have so many categories. In the future, when we do data cleaning, there should be fewer categories in each variable.
+We also considered an interaction term-focused model between marital status and occupation group, which resulted in a average RMSE of 895.5156 and a MAE of 737.0633. This slightly lower RMSE and MAE suggests that the interaction between marital status and occupation group provides additional value to predicting home ownership.
+
+# Obstacles
+
+## Git collaboration 
+At the beginning, each team member is using the main branch to commit changes without validating other people’s changes. Then we decided to use the personal branch first and the other team members validated before merging into the main. However, when we worked together and kept pushing into the main, there was code code conflict. We review the conflict and use the git command to resolve the conflict.
+
+## Future work/improvement 
+For our team data, in the categorical variable, there are too many categories. It causes our R notebook compute time to be too long and hard to interpret the result when we have so many categories. In the future, when we do data cleaning, there should be fewer categories in each variable.
+
+# Conclusion
+
+The analysis for the first question revealed a strong positive correlation between educational attainment and income for both males and females aged 50 in Oregon. Individuals with higher levels of education, particularly those holding bachelor's degrees or above, were found to have significantly higher median incomes compared to those with lower educational attainment.
+
+Furthermore, the validation set and cross-validation analyses confirmed that EducationGroup, Race, and OccupationGroup are significant predictors of household income. These results help underscore the importance of these factors in shaping income levels and highlight potential areas for future research and policy interventions aimed at reducing income disparities.
+
+Lastly, the study explored the complex relationships between Occupation, home ownership, race/ethnicity, Marital Status, OccupationGroup, and income. The selected models provided valuable insights into how these variables interact and influence occupation and income outcomes.
+
+Therefore, the Data Wizards have conducted a comprehensive analysis of the American Community Survey data to find from this study valuable insights into the factors influencing income levels and disparities within the state of Oregon.
 
 
-## Appendix
+# Appendix
 
 ```{r, eval = FALSE, warning=FALSE, fig.show='hide'}
 ## An if statement for checking if a package is installed :)
